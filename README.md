@@ -10,7 +10,7 @@ El objetivo es **unificar esta información** en una vista de auditoría coheren
 
 ## Estado del proyecto
 Actualmente, SeguriX se encuentra en una fase **muy inicial de diseño**.  
-No existe código implementado aún; el trabajo se centra en definir la arquitectura, los módulos principales y las estrategias técnicas que permitirán construir una solución robusta y extensible.
+Existe muy poco código implementado aún; ya que el trabajo se centro en definir la arquitectura, los módulos principales y las estrategias técnicas que permitirán construir una solución robusta y extensible.
 
 ## Objetivo general
 Construir una plataforma que:
