@@ -12,8 +12,8 @@ El principal desafío que aborda SeguriX es la **heterogeneidad de los datos**: 
 El objetivo es **unificar esta información** en una vista de auditoría coherente y escalable, asegurando que el sistema pueda incorporar nuevas tecnologías sin comprometer su estabilidad.
 
 ## Estado del proyecto
-Actualmente, SeguriX se encuentra en una fase **muy inicial de diseño**.  
-Existe muy poco código implementado aún; ya que el trabajo se centro en definir la arquitectura, los módulos principales y las estrategias técnicas que permitirán construir una solución robusta y extensible.
+Actualmente, SeguriX se encuentra en ouna fase **muy inicial de diseño**.  
+Existe muy poco código implementado; ya que el trabajo se centro en definir la arquitectura, los módulos principales y las estrategias técnicas que permitirán construir una solución robusta y extensible.
 
 ## Objetivo general
 Construir una plataforma que:
