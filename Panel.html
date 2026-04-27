@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel SeguriX</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="panel-container">
+
+    <h1>Panel de Acceso</h1>
+
+    <!-- BOTONES DE SIMULACIÓN -->
+    <div class="botones">
+        <button onclick="simularAcceso(1, 'QR')">QR Usuario 1</button>
+        <button onclick="simularAcceso(2, 'Huella')">Huella Usuario 2</button>
+        <button onclick="simularAcceso(1, 'Tarjeta')">Tarjeta Usuario 1</button>
+    </div>
+
+    <!-- LOGS -->
+    <h2>Registros</h2>
+    <ul id="logs"></ul>
+
+</div>
+
+<script>
+
+// 🔹 Simular acceso
+async function simularAcceso(usuario_id, metodo) {
+    await fetch("/acceso", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            usuario_id: usuario_id,
+            metodo: metodo
+        })
+    });
+
+    cargarLogs();
+}
+
+// 🔹 Cargar logs
+async function cargarLogs() {
+    const res = await fetch("/logs");
+    const data = await res.json();
+
+    const lista = document.getElementById("logs");
+    lista.innerHTML = "";
+
+    data.forEach(log => {
+        const item = document.createElement("li");
+
+        item.textContent =
+            "Usuario " + log.usuario_id +
+            " | Método: " + log.metodo +
+            " | Estado: " + log.estado;
+
+        lista.appendChild(item);
+    });
+}
+
+// 🔹 Refresca cada 2 segundos
+setInterval(cargarLogs, 2000);
+
+</script>
+
+</body>
+</html>
