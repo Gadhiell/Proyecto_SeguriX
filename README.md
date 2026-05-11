@@ -51,7 +51,8 @@ En este proyecto Flask se encarga de:
 
 
 ## **Diagrama UML**
-<img width="1200" height="800" alt="imagen_2026-04-27_150646923" src="https://github.com/user-attachments/assets/fa0b88f9-fc81-40f2-b40d-5ff785529d89" />
+<img width="812" height="861" alt="Captura de pantalla 2026-05-11 154144" src="https://github.com/user-attachments/assets/2cc81991-147e-44a6-b9ab-5d92fe29572d" />
+
 
 
 ## ▶️ Ejecución
