@@ -55,16 +55,27 @@ En este proyecto Flask se encarga de:
 
 
 
-## ▶️ Ejecución
+## Instalación y ejecución
+
+tener instalado:
+
+Python 3.10 o superior
+Pip (administrador de paquetes de Python)
+Un entorno de desarrollo compatible, como Visual Studio Code, junto con la extensión de Python
+
+Instala Flask:
 
 ```bash
-cd C:\Users\suprr\Documents\Proyecto_SeguriX
+pip install flask
+
+```
+Ejecuta el proyecto desde la carpeta donde se encuentra app.py:
+
+```bash
 python app.py
+```
+Luego abre en el navegador:
 
-//Luego abrir en el navegador:
-
+```bash
 http://localhost:5000/
-
-
-
-
+```
