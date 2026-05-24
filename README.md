@@ -51,19 +51,31 @@ En este proyecto Flask se encarga de:
 
 
 ## **Diagrama UML**
-<img width="1200" height="800" alt="imagen_2026-04-27_150646923" src="https://github.com/user-attachments/assets/fa0b88f9-fc81-40f2-b40d-5ff785529d89" />
+<img width="812" height="861" alt="Captura de pantalla 2026-05-11 154144" src="https://github.com/user-attachments/assets/2cc81991-147e-44a6-b9ab-5d92fe29572d" />
 
 
-## ▶️ Ejecución
+
+## Instalación y ejecución
+
+tener instalado:
+
+Python 3.10 o superior
+Pip (administrador de paquetes de Python)
+Un entorno de desarrollo compatible, como Visual Studio Code, junto con la extensión de Python
+
+Instala Flask:
 
 ```bash
-cd C:\Users\suprr\Documents\Proyecto_SeguriX
+pip install flask
+
+```
+Ejecuta el proyecto desde la carpeta donde se encuentra app.py:
+
+```bash
 python app.py
+```
+Luego abre en el navegador:
 
-//Luego abrir en el navegador:
-
+```bash
 http://localhost:5000/
-
-
-
-
+```

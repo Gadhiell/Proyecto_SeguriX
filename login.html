@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - SeguriX</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/styles.css">
+
+    <!-- ICONOS -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="login-page">
+
+    <!-- LADO IZQUIERDO -->
+    <div class="login-left">
+
+        <img src="/static/logo.png" class="login-logo">
+        <img src="/static/Wordmark.png" class="login-wordmark">
+
+    </div>
+
+    <!-- CARD LOGIN -->
+    <div class="login-card">
+
+        <!-- FLECHA -->
+        <a href="/" class="back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
+        <h1>INICIAR SESIÓN</h1>
+
+        <form method="POST" action="/login">
+
+            <!-- USUARIO -->
+            <div class="input-group">
+
+                <div class="input-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <input type="text"
+                name="usuario"
+                placeholder="Usuario"
+                required>
+
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="input-group">
+
+                <div class="input-icon">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+
+                <input type="password"
+                id="password"
+                name="password"
+                placeholder="Contraseña"
+                required>
+
+                <button type="button"
+                class="show-password"
+                onclick="togglePassword()">
+
+                    <i class="fa-solid fa-eye"></i>
+
+                </button>
+
+            </div>
+
+            <!-- OPCIONES -->
+            <div class="login-options">
+
+                <label>
+                    <input type="checkbox">
+                    Recordar
+                </label>
+
+                <a href="/password_reset">¿Olvidaste tu contraseña?</a>
+
+            </div>
+
+            <!-- BOTON -->
+            <button type="submit" class="login-btn">
+                INICIAR SESIÓN
+            </button>
+
+        </form>
+
+        <p class="contacto">
+            ¿No tienes cuenta?
+            <a href="#">Contacta a un administrador</a>
+        </p>
+
+    </div>
+
+</div>
+
+<script>
+
+function togglePassword() {
+
+    const input = document.getElementById("password");
+
+    if (input.type === "password") {
+        input.type = "text";
+    } else {
+        input.type = "password";
+    }
+
+}
+
+</script>
+
+</body>
+</html>
