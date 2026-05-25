@@ -78,8 +78,5 @@ Luego abre en el navegador:
 
 ```bash
 http://localhost:5000/
-<<<<<<< HEAD
 ```
-=======
-```
->>>>>>> 1a3e89132954862ee42ec7b97d1b35a3758f6a8f
+
