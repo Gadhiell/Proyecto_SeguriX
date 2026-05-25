@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel SeguriX</title>
+
+    <link rel="stylesheet" href="/static/styles.css">
+
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <!-- IZQUIERDA(Logos E Imagenes) -->
+    <div class="nav-left">
+
+        <img src="/static/logo.png" class="nav-logo">
+        <img src="/static/Wordmark.png" class="nav-Wordmark">
+
+    </div>
+
+    <!-- CENTRO(Dashboard) -->
+    <div class="nav-menu">
+
+        <a href="#" class="nav-item active">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Panel de Control</span>
+        </a>
+
+        <a href="/usuarios" class="nav-item">
+            <i class="bi bi-people-fill"></i>
+            <span>Usuarios</span>
+        </a>
+
+        <a href="/auditoria" class="nav-item">
+            <i class="bi bi-file-earmark-text-fill"></i>
+            <span>Auditoría</span>
+        </a>
+
+        <a href="/estadosys" class="nav-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Estado del Sistema</span>
+        </a>
+
+    </div>
+
+    <!-- DERECHA(Perfil Y Notificaciones) -->
+    <div class="nav-icons">
+
+        <div class="notification">
+
+            <i class="bi bi-bell-fill"></i>
+            <span class="notification-badge">2</span>
+
+        </div>
+
+        <div class="profile-button">
+
+            <i class="bi bi-person-circle"></i>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PANEL -->
+<div class="panel-container">
+
+    <!-- CARDS -->
+    <div class="cards">
+
+        <!-- CARD -->
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <p class="card-title">
+                        Total de usuarios activos
+                    </p>
+
+                    <h2>25</h2>
+                </div>
+
+                <i class="bi bi-people-fill card-icon"></i>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <p class="card-title">
+                        Visitantes hoy
+                    </p>
+
+                    <h2 id="contador">12</h2>
+
+                </div>
+
+                <i class="bi bi-person-badge-fill card-icon"></i>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <p class="card-title">
+                        Alertas de acceso
+                    </p>
+
+                    <h2>4</h2>
+
+                </div>
+
+                <i class="bi bi-bell-fill card-icon"></i>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+    <div class="tabla-container">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>Acceso en vivo</h2>
+
+                <p class="table-subtitle">
+                    Últimos accesos registrados en el sistema
+                </p>
+
+            </div>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Hora/Fecha</th>
+                    <th>Usuario</th>
+                    <th>Tipo</th>
+                    <th>Método</th>
+                    <th>Ubicación</th>
+                    <th>Estado</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="logs"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+async function simularAcceso(usuario_id, metodo) {
+
+    await fetch("/acceso", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+            usuario_id : usuario_id,
+            metodo: metodo
+
+        })
+
+    });
+
+    cargarLogs();
+}
+
+
+async function cargarLogs() {
+
+    const res = await fetch("/logs");
+    const data = await res.json();
+
+    const tabla = document.getElementById("logs");
+
+    tabla.innerHTML = "";
+
+    document.getElementById("contador").textContent = data.length;
+
+    data.forEach(log => {
+
+        const row = document.createElement("tr");
+
+        let claseEstado =
+        log.estado === "activo"
+        ? "badge activo"
+        : "badge inactivo";
+
+        let textoEstado =
+        log.estado === "activo"
+        ? "ACTIVO"
+        : "INACTIVO";
+
+        let icono = "";
+
+        if (log.metodo === "QR") {
+
+            icono =
+            '<i class="bi bi-qr-code-scan"></i>';
+
+        }
+
+        else if (log.metodo === "Huella") {
+
+            icono =
+            '<i class="bi bi-fingerprint"></i>';
+
+        }
+
+        else if (log.metodo === "Tarjeta") {
+
+            icono =
+            '<i class="bi bi-credit-card-2-front-fill"></i>';
+
+        }
+
+        row.innerHTML = `
+
+            <td>${log.fecha || "00:30-19/05/2025"}</td>
+
+            <td>Usuario ${log.usuario_id}</td>
+
+            <td>${icono}</td>
+
+            <td>${log.metodo}</td>
+
+            <td>${log.ubicacion || "Vestíbulo Principal"}</td>
+
+            <td>
+                <span class="${claseEstado}">
+                    ${textoEstado}
+                </span>
+            </td>
+
+        `;
+
+        tabla.appendChild(row);
+
+    });
+
+}
+
+setInterval(cargarLogs, 2000);
+
+cargarLogs();
+
+</script>
+
+</body>
+</html>

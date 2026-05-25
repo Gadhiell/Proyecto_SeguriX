@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+    <title>Auditoría - SeguriX</title>
+
+    <link rel="stylesheet"
+    href="/static/styles.css">
+
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <!-- IZQUIERDA -->
+    <div class="nav-left">
+
+        <img src="/static/logo.png"
+        class="nav-logo">
+
+        <img src="/static/Wordmark.png"
+        class="nav-Wordmark">
+
+    </div>
+
+
+    <!-- CENTRO -->
+    <div class="nav-menu">
+
+        <a href="/panel"
+        class="nav-item">
+
+            <i class="bi bi-grid-1x2-fill"></i>
+
+            <span>
+                Panel de Control
+            </span>
+
+        </a>
+
+
+        <a href="/usuarios"
+        class="nav-item">
+
+            <i class="bi bi-people-fill"></i>
+
+            <span>
+                Usuarios
+            </span>
+
+        </a>
+
+
+        <a href="/auditoria"
+        class="nav-item active">
+
+            <i class="bi bi-file-earmark-text-fill"></i>
+
+            <span>
+                Auditoría
+            </span>
+
+        </a>
+
+
+        <a href="/estadosys"
+        class="nav-item">
+
+            <i class="bi bi-shield-check"></i>
+
+            <span>
+                Estado del Sistema
+            </span>
+
+        </a>
+
+    </div>
+
+
+    <!-- DERECHA -->
+    <div class="nav-icons">
+
+        <div class="notification">
+
+            <i class="bi bi-bell-fill"></i>
+
+            <span class="notification-badge">
+                2
+            </span>
+
+        </div>
+
+
+        <div class="profile-button">
+
+            <i class="bi bi-person-circle"></i>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- CONTENIDO -->
+<div class="panel-container">
+
+
+    <!-- HEADER -->
+    <div class="audit-header">
+
+        <div>
+
+            <h1 class="audit-title">
+                Registro de Auditoría Centralizado
+            </h1>
+
+        </div>
+
+
+        <div class="audit-total">
+
+            <span>
+                532  Entradas Procesadas
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- FILTROS -->
+    <form method="GET"
+    action="/auditoria"
+    class="audit-filters">
+
+
+        <!-- FECHAS -->
+        <select name="fecha"
+        class="filter-select">
+
+            <option value="todos">
+                Fechas (Rangos)
+            </option>
+
+            <option value="hoy">
+                Hoy
+            </option>
+
+            <option value="semana">
+                Últimos 7 días
+            </option>
+
+            <option value="mes">
+                Últimos 30 días
+            </option>
+
+        </select>
+
+
+
+        <!-- TIPO -->
+        <select name="tipo"
+        class="filter-select">
+
+            <option value="todos">
+                Tipo Usuario (Todos)
+            </option>
+
+            <option value="Empleado">
+                Empleado
+            </option>
+
+            <option value="Proveedor">
+                Proveedor
+            </option>
+
+            <option value="Visitante">
+                Visitante
+            </option>
+
+        </select>
+
+
+
+        <!-- METODO -->
+        <select name="metodo"
+        class="filter-select">
+
+            <option value="todos">
+                Métodos (Todos)
+            </option>
+
+            <option value="QR">
+                Código QR
+            </option>
+
+            <option value="Tarjeta">
+                Tarjeta
+            </option>
+
+            <option value="Huella">
+                Huella Digital
+            </option>
+
+        </select>
+
+
+
+        <!-- UBICACION -->
+        <select name="ubicacion"
+        class="filter-select">
+
+            <option value="todos">
+                Ubicación (Todas)
+            </option>
+
+            <option value="Vestíbulo Principal">
+                Vestíbulo Principal
+            </option>
+
+            <option value="Entrada lateral">
+                Entrada lateral
+            </option>
+
+            <option value="Entrada principal">
+                Entrada principal
+            </option>
+
+            <option value="Muelle de carga">
+                Muelle de carga
+            </option>
+
+        </select>
+
+
+
+        <!-- ESTADO -->
+        <select name="estado"
+        class="filter-select">
+
+            <option value="todos">
+                Estado (Todos)
+            </option>
+
+            <option value="ACTIVO">
+                Activo
+            </option>
+
+            <option value="INACTIVO">
+                Inactivo
+            </option>
+
+        </select>
+
+
+
+        <!-- BOTON -->
+        <button type="submit"
+        class="filter-submit">
+
+            <i class="bi bi-funnel-fill"></i>
+
+            Filtrar
+
+        </button>
+
+    </form>
+
+
+
+    <!-- TABLA -->
+    <div class="tabla-container audit-table-container">
+
+
+        <!-- HEADER TABLA -->
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Accesos Registrados
+                </h2>
+
+                <p class="table-subtitle">
+
+                    Últimos eventos detectados
+                    por el sistema de control
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TABLA -->
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Hora/Fecha
+                    </th>
+
+                    <th>
+                        Usuario
+                    </th>
+
+                    <th>
+                        Método
+                    </th>
+
+                    <th>
+                        Ubicación
+                    </th>
+
+                    <th>
+                        Estado
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <!--CUERPO DINAMICO-->
+            <tbody id="audit-body"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>
