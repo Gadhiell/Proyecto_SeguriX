@@ -15,6 +15,7 @@
 </head>
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
 
     <div class="nav-left">
@@ -41,7 +42,7 @@
             <span>Auditoría</span>
         </a>
 
-        <a href="#" class="nav-item active">
+        <a href="/estadosys" class="nav-item active">
             <i class="bi bi-shield-check"></i>
             <span>Estado del Sistema</span>
         </a>
@@ -53,6 +54,10 @@
         <div class="notification">
 
             <i class="bi bi-bell-fill"></i>
+
+            <span class="notification-badge">
+                4
+            </span>
 
         </div>
 
@@ -66,7 +71,418 @@
 
 </div>
 
-<div class="panel-container"></div>
+
+<!-- CONTENIDO -->
+<div class="panel-container">
+
+
+    <!-- CARDS -->
+    <div class="system-cards">
+
+        <div class="system-card">
+
+            <span class="system-title">
+                Accesos Hoy
+            </span>
+
+            <div class="system-bottom">
+
+                <i class="bi bi-box-arrow-in-right"></i>
+
+                <h2>75</h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="system-card">
+
+            <span class="system-title">
+                Entradas
+            </span>
+
+            <div class="system-bottom">
+
+                <i class="bi bi-door-open-fill"></i>
+
+                <h2>58</h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="system-card">
+
+            <span class="system-title">
+                Salidas
+            </span>
+
+            <div class="system-bottom">
+
+                <i class="bi bi-door-closed-fill"></i>
+
+                <h2>43</h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="system-card">
+
+            <span class="system-title">
+                Personas Dentro
+            </span>
+
+            <div class="system-bottom">
+
+                <i class="bi bi-people-fill"></i>
+
+                <h2>27</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOTON ALERTAS -->
+    <div class="alerts-button-container">
+
+        <button class="alerts-btn"
+        onclick="abrirAlertas()">
+
+            <i class="bi bi-bell-fill"></i>
+
+            Centro de Alertas
+
+            <span class="alerts-count">
+                4
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <!-- GRID -->
+    <div class="system-grid">
+
+
+        <!-- TABLA -->
+        <div class="system-box">
+
+            <div class="table-header">
+
+                <h2>
+                    Acceso en Vivo
+                </h2>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Hora</th>
+                        <th>Usuario</th>
+                        <th>Método</th>
+                        <th>Acceso</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>14:30</td>
+                        <td>J. Troncoso</td>
+                        <td><i class="bi bi-qr-code-scan"></i></td>
+
+                        <td>
+                            <span class="badge activo">
+                                ✔ PERMITIDO
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>13:15</td>
+                        <td>I. Rivera</td>
+                        <td><i class="bi bi-credit-card-2-front-fill"></i></td>
+
+                        <td>
+                            <span class="badge activo">
+                                ✔ PERMITIDO
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>11:30</td>
+                        <td>M. González</td>
+                        <td><i class="bi bi-fingerprint"></i></td>
+
+                        <td>
+                            <span class="badge activo">
+                                ✔ PERMITIDO
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>10:45</td>
+                        <td>C. Ramírez</td>
+                        <td><i class="bi bi-qr-code-scan"></i></td>
+
+                        <td>
+                            <span class="badge inactivo">
+                                ✖ DENEGADO
+                            </span>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- PANEL DERECHO -->
+        <div class="right-panel">
+
+            <div class="system-box">
+
+                <div class="table-header">
+
+                    <h2>
+                        Métodos de Acceso
+                    </h2>
+
+                </div>
+
+                <div class="method-stats">
+
+                    <div class="method-row">
+
+                        <div class="method-info">
+
+                            <i class="bi bi-qr-code-scan"></i>
+
+                            <span>
+                                Código QR
+                            </span>
+
+                        </div>
+
+                        <span class="method-count">
+                            32 usos
+                        </span>
+
+                    </div>
+
+
+                    <div class="method-row">
+
+                        <div class="method-info">
+
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+
+                            <span>
+                                Tarjeta RFID
+                            </span>
+
+                        </div>
+
+                        <span class="method-count">
+                            27 usos
+                        </span>
+
+                    </div>
+
+
+                    <div class="method-row">
+
+                        <div class="method-info">
+
+                            <i class="bi bi-fingerprint"></i>
+
+                            <span>
+                                Huella Digital
+                            </span>
+
+                        </div>
+
+                        <span class="method-count">
+                            16 usos
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PANEL LATERAL ALERTAS -->
+<div id="alertsPanel"
+class="alerts-panel">
+
+    <div class="alerts-header">
+
+        <h2>
+            Centro de Alertas
+        </h2>
+
+        <button
+        class="close-alerts"
+        onclick="cerrarAlertas()">
+
+            ✕
+        </button>
+
+    </div>
+
+    <div class="alerts-list">
+
+        <div class="alert-item danger">
+
+            <i class="bi bi-x-octagon-fill"></i>
+
+            <div>
+
+                <strong>
+                    Acceso Denegado
+                </strong>
+
+                <p>
+                    Intento de acceso inválido detectado.
+                </p>
+
+                <small>
+                    Hace 2 minutos
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="alert-item warning">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            <div>
+
+                <strong>
+                    Fuera de Horario
+                </strong>
+
+                <p>
+                    2 accesos registrados fuera del horario permitido.
+                </p>
+
+                <small>
+                    Hace 10 minutos
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="alert-item info">
+
+            <i class="bi bi-info-circle-fill"></i>
+
+            <div>
+
+                <strong>
+                    Mantenimiento
+                </strong>
+
+                <p>
+                    Revisión automática completada.
+                </p>
+
+                <small>
+                    Hace 25 minutos
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="alert-item success">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            <div>
+
+                <strong>
+                    Sistema Operativo
+                </strong>
+
+                <p>
+                    Todos los módulos funcionando correctamente.
+                </p>
+
+                <small>
+                    Hace 1 hora
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function abrirAlertas(){
+
+    document
+    .getElementById("alertsPanel")
+    .classList
+    .add("show-alerts");
+
+}
+
+function cerrarAlertas(){
+
+    document
+    .getElementById("alertsPanel")
+    .classList
+    .remove("show-alerts");
+
+}
+
+</script>
 
 </body>
 </html>
