@@ -8,7 +8,6 @@ class EventoAcceso:
         self.ubicacion = ubicacion
         self.estado = estado
 
-
     def to_dict(self):
 
         return {

@@ -11,6 +11,8 @@
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <script src="/dashboard.js"></script>
 
 </head>
 <body>
@@ -54,14 +56,14 @@
     <!-- DERECHA(Perfil Y Notificaciones) -->
     <div class="nav-icons">
 
-        <div class="notification">
+        <div class="notification" onclick="abrirNotificaciones()">
 
             <i class="bi bi-bell-fill"></i>
-            <span class="notification-badge">2</span>
+            <span class="notification-badge" id="notif-badge">0</span>
 
         </div>
 
-        <div class="profile-button">
+        <div class="profile-button" onclick="abrirPerfil()">
 
             <i class="bi bi-person-circle"></i>
 
@@ -72,13 +74,243 @@
 </div>
 
 
+<!-- MODAL PERFIL -->
+<div id="modalPerfil" class="modal" style="display:none;">
+    <div class="modal-content perfil-modal">
+        <span class="close" onclick="cerrarPerfil()">&times;</span>
+        
+        <div class="perfil-header">
+            <i class="bi bi-person-circle perfil-icon"></i>
+            <div>
+                <h2 id="perfil-nombre">Usuario</h2>
+                <p id="perfil-rol" style="color:#999;font-size:0.9em;">Rol</p>
+            </div>
+        </div>
+        
+        <div class="perfil-info">
+            <div class="info-item">
+                <label>Email:</label>
+                <p id="perfil-email">email@example.com</p>
+            </div>
+            <div class="info-item">
+                <label>Hora Actual:</label>
+                <p id="perfil-hora">--:--:--</p>
+            </div>
+        </div>
+        
+        <button class="logout-btn" onclick="cerrarSesion()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+        </button>
+    </div>
+</div>
+
+
+<!-- MODAL NOTIFICACIONES -->
+<div id="modalNotificaciones" class="modal" style="display:none;">
+    <div class="modal-content notif-modal">
+        <span class="close" onclick="cerrarNotificaciones()">&times;</span>
+        
+        <h2>Notificaciones de Acceso</h2>
+        <div id="notif-list" class="notif-list">
+            <p style="text-align:center;color:#999;">Cargando...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    
+    .modal.show {
+        display: flex !important;
+    }
+    
+    .modal-content {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,250,0.95) 100%);
+        backdrop-filter: blur(10px);
+        border-left: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 380px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .close {
+        color: #999;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .close:hover {
+        color: #000;
+    }
+    
+    .perfil-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .perfil-icon {
+        font-size: 50px;
+        color: #6366f1;
+    }
+    
+    .perfil-header h2 {
+        margin: 0;
+        font-size: 1.5em;
+        color: #000;
+    }
+    
+    .perfil-info {
+        margin-bottom: 25px;
+    }
+    
+    .info-item {
+        margin-bottom: 15px;
+    }
+    
+    .info-item label {
+        display: block;
+        font-size: 0.85em;
+        color: #666;
+        margin-bottom: 5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-item p {
+        margin: 0;
+        font-size: 1em;
+        color: #333;
+    }
+    
+    .logout-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .logout-btn:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+    
+    .notif-modal {
+        max-width: 420px;
+    }
+    
+    .notif-modal h2 {
+        margin: 0 0 20px 0;
+        color: #000;
+        font-size: 1.3em;
+    }
+    
+    .notif-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .notif-item {
+        background: rgba(255,255,255,0.6);
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        border-left: 4px solid #6366f1;
+    }
+    
+    .notif-item:hover {
+        background: rgba(255,255,255,0.7);
+    }
+    
+    .notif-item.denegado {
+        border-left-color: #ef4444;
+    }
+    
+    .notif-icon {
+        font-size: 1.5em;
+        flex-shrink: 0;
+    }
+    
+    .notif-content {
+        flex: 1;
+    }
+    
+    .notif-content strong {
+        display: block;
+        color: #000;
+        margin-bottom: 3px;
+    }
+    
+    .notif-content small {
+        display: block;
+        color: #666;
+        font-size: 0.85em;
+        margin-top: 5px;
+    }
+    
+    .notif-estado {
+        font-size: 0.75em;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+    
+    .notif-estado.permitido {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .notif-estado.denegado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+
+
 <!-- PANEL -->
 <div class="panel-container">
 
     <!-- CARDS -->
     <div class="cards">
 
-        <!-- CARD -->
+        <!-- CARD Total Usuarios-->
         <div class="card">
 
             <div class="card-header">
@@ -88,7 +320,7 @@
                         Total de usuarios activos
                     </p>
 
-                    <h2>25</h2>
+                    <h2 id="total-usuarios">0</h2>
                 </div>
 
                 <i class="bi bi-people-fill card-icon"></i>
@@ -97,7 +329,7 @@
 
         </div>
 
-        <!-- CARD -->
+        <!-- CARD Accesos Hoy -->
         <div class="card">
 
             <div class="card-header">
@@ -105,10 +337,10 @@
                 <div>
 
                     <p class="card-title">
-                        Visitantes hoy
+                        Accesos Hoy
                     </p>
 
-                    <h2 id="contador">12</h2>
+                    <h2 id="accesos-hoy">0</h2>
 
                 </div>
 
@@ -118,7 +350,7 @@
 
         </div>
 
-        <!-- CARD -->
+        <!-- CARD Alertas -->
         <div class="card">
 
             <div class="card-header">
@@ -129,7 +361,7 @@
                         Alertas de acceso
                     </p>
 
-                    <h2>4</h2>
+                    <h2 id="alertas-total">0</h2>
 
                 </div>
 
@@ -186,6 +418,137 @@
 
 <script>
 
+// Cargar sesión del usuario
+async function cargarSesion() {
+    try {
+        const res = await fetch('/api/sesion');
+        if (res.ok) {
+            const sesion = await res.json();
+            if (sesion.logueado) {
+                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
+                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
+                document.getElementById('perfil-email').textContent = sesion.usuario_email;
+            }
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (err) {
+        console.error('Error cargando sesión:', err);
+    }
+}
+
+// Actualizar hora en tiempo real
+function actualizarHora() {
+    const ahora = new Date();
+    const hora = ahora.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit'
+    });
+    document.getElementById('perfil-hora').textContent = hora;
+}
+
+// Abrir modal de perfil
+function abrirPerfil() {
+    document.getElementById('modalPerfil').classList.add('show');
+    actualizarHora();
+}
+
+// Cerrar modal de perfil
+function cerrarPerfil() {
+    document.getElementById('modalPerfil').classList.remove('show');
+}
+
+// Cerrar sesión
+function cerrarSesion() {
+    if (confirm('¿Deseas cerrar sesión?')) {
+        window.location.href = '/logout';
+    }
+}
+
+// Cargar notificaciones
+async function cargarNotificaciones() {
+    try {
+        const res = await fetch('/auditoria_datos');
+        const logs = await res.json();
+        
+        // Obtener últimos 5 accesos
+        const notificaciones = logs.slice(-5).reverse();
+        
+        // Actualizar badge
+        document.getElementById('notif-badge').textContent = notificaciones.length;
+        
+        const lista = document.getElementById('notif-list');
+        lista.innerHTML = '';
+        
+        if (notificaciones.length === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
+            return;
+        }
+        
+        notificaciones.forEach(log => {
+            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
+                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
+                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
+            
+            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
+            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
+            
+            const item = document.createElement('div');
+            item.className = `notif-item ${estado}`;
+            item.innerHTML = `
+                <i class="bi ${icono} notif-icon"></i>
+                <div class="notif-content">
+                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
+                    <small>${log.metodo || 'Método desconocido'}</small>
+                    <small>${log.ubicacion || 'Ubicación'}</small>
+                    <small>${log.fecha || 'Hora no disponible'}</small>
+                </div>
+                <span class="notif-estado ${estado}">${estadoText}</span>
+            `;
+            lista.appendChild(item);
+        });
+    } catch (err) {
+        console.error('Error cargando notificaciones:', err);
+        document.getElementById('notif-list').innerHTML = '<p style="text-align:center;color:red;">Error al cargar</p>';
+    }
+}
+
+// Abrir modal de notificaciones
+function abrirNotificaciones() {
+    document.getElementById('modalNotificaciones').classList.add('show');
+    cargarNotificaciones();
+}
+
+// Cerrar modal de notificaciones
+function cerrarNotificaciones() {
+    document.getElementById('modalNotificaciones').classList.remove('show');
+}
+
+// Cerrar modal al hacer click fuera
+window.onclick = function(event) {
+    const modalPerfil = document.getElementById('modalPerfil');
+    const modalNotif = document.getElementById('modalNotificaciones');
+    
+    if (event.target === modalPerfil) {
+        modalPerfil.classList.remove('show');
+    }
+    if (event.target === modalNotif) {
+        modalNotif.classList.remove('show');
+    }
+}
+
+async function cargarEstadoPanel() {
+    try {
+        const estado = await fetch('/api/estado_sistema').then(r => r.json());
+        document.getElementById('total-usuarios').textContent = estado.total_usuarios || 0;
+        document.getElementById('accesos-hoy').textContent = estado.accesos_hoy || 0;
+        document.getElementById('alertas-total').textContent = estado.alertas || 0;
+    } catch (err) {
+        console.error('Error cargando estado del panel:', err);
+    }
+}
+
 async function simularAcceso(usuario_id, metodo) {
 
     await fetch("/acceso", {
@@ -211,16 +574,14 @@ async function simularAcceso(usuario_id, metodo) {
 
 async function cargarLogs() {
 
-    const res = await fetch("/logs");
+    const res = await fetch("/auditoria_datos");
     const data = await res.json();
 
     const tabla = document.getElementById("logs");
 
     tabla.innerHTML = "";
 
-    document.getElementById("contador").textContent = data.length;
-
-    data.forEach(log => {
+    data.slice(-10).reverse().forEach(log => {
 
         const row = document.createElement("tr");
 
@@ -231,26 +592,26 @@ async function cargarLogs() {
 
         let textoEstado =
         log.estado === "activo"
-        ? "ACTIVO"
-        : "INACTIVO";
+        ? "PERMITIDO"
+        : "DENEGADO";
 
         let icono = "";
 
-        if (log.metodo === "QR") {
+        if (log.metodo?.includes("QR") || log.metodo === "Código QR") {
 
             icono =
             '<i class="bi bi-qr-code-scan"></i>';
 
         }
 
-        else if (log.metodo === "Huella") {
+        else if (log.metodo?.includes("Huella") || log.metodo === "Huella Digital") {
 
             icono =
             '<i class="bi bi-fingerprint"></i>';
 
         }
 
-        else if (log.metodo === "Tarjeta") {
+        else if (log.metodo?.includes("Tarjeta")) {
 
             icono =
             '<i class="bi bi-credit-card-2-front-fill"></i>';
@@ -259,13 +620,13 @@ async function cargarLogs() {
 
         row.innerHTML = `
 
-            <td>${log.fecha || "00:30-19/05/2025"}</td>
+            <td>${log.fecha || "00:30"}</td>
 
-            <td>Usuario ${log.usuario_id}</td>
+            <td>${log.nombre || "Usuario " + log.usuario_id}</td>
 
             <td>${icono}</td>
 
-            <td>${log.metodo}</td>
+            <td>${log.metodo || "Desconocido"}</td>
 
             <td>${log.ubicacion || "Vestíbulo Principal"}</td>
 
@@ -283,9 +644,18 @@ async function cargarLogs() {
 
 }
 
-setInterval(cargarLogs, 2000);
+window.addEventListener('load', () => {
+    cargarSesion();
+    cargarEstadoPanel();
+    cargarLogs();
+    actualizarHora();
+    setInterval(actualizarHora, 1000);
+});
 
-cargarLogs();
+setInterval(() => {
+    cargarEstadoPanel();
+    cargarLogs();
+}, 5000);
 
 </script>
 

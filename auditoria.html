@@ -13,6 +13,8 @@
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <script src="/dashboard.js"></script>
 
 </head>
 <body>
@@ -85,26 +87,6 @@
     </div>
 
 
-    <!-- DERECHA -->
-    <div class="nav-icons">
-
-        <div class="notification">
-
-            <i class="bi bi-bell-fill"></i>
-
-            <span class="notification-badge">
-                2
-            </span>
-
-        </div>
-
-
-        <div class="profile-button">
-
-            <i class="bi bi-person-circle"></i>
-
-        </div>
-
     </div>
 
 </div>
@@ -129,8 +111,8 @@
 
         <div class="audit-total">
 
-            <span>
-                532  Entradas Procesadas
+            <span id="total-registros">
+                0 Entradas Procesadas
             </span>
 
         </div>
@@ -201,7 +183,7 @@
                 Métodos (Todos)
             </option>
 
-            <option value="QR">
+            <option value="Código QR">
                 Código QR
             </option>
 
@@ -209,7 +191,7 @@
                 Tarjeta
             </option>
 
-            <option value="Huella">
+            <option value="Huella Digital">
                 Huella Digital
             </option>
 
@@ -266,8 +248,10 @@
 
 
         <!-- BOTON -->
-        <button type="submit"
-        class="filter-submit">
+        <button
+        type="button"
+        class="filter-submit"
+        onclick="cargarAuditoria()">
 
             <i class="bi bi-funnel-fill"></i>
 
@@ -346,6 +330,281 @@
     </div>
 
 </div>
+
+<script>
+
+async function cargarAuditoria() {
+
+    const fecha =
+    document.querySelector(
+        'select[name="fecha"]'
+    ).value;
+
+    const tipo =
+    document.querySelector(
+        'select[name="tipo"]'
+    ).value;
+
+    const metodo =
+    document.querySelector(
+        'select[name="metodo"]'
+    ).value;
+
+    const ubicacion =
+    document.querySelector(
+        'select[name="ubicacion"]'
+    ).value;
+
+    const estado =
+    document.querySelector(
+        'select[name="estado"]'
+    ).value;
+
+    const res =
+    await fetch("/auditoria_datos");
+
+
+    let logs =
+    await res.json();
+
+
+    if (metodo !== "todos") {
+        logs = logs.filter(log => {
+            const m = (log.metodo || '').toLowerCase();
+            const filtro = metodo.toLowerCase();
+            return m.includes(filtro) || filtro.includes(m.substring(0, 3));
+        });
+    }
+
+    if (tipo !== "todos") {
+        logs = logs.filter(log =>
+            log.rol === tipo
+        );
+    }
+
+    if (ubicacion !== "todos") {
+        logs = logs.filter(log =>
+            log.ubicacion === ubicacion
+        );
+    }
+
+    if (estado !== "todos") {
+        logs = logs.filter(log =>
+            log.estado.toLowerCase() === estado.toLowerCase()
+        );
+    }
+
+    if (fecha !== "todos") {
+        const ahora = new Date();
+
+        logs = logs.filter(log => {
+            const partes =
+            log.fecha.split(" ")[0].split("/");
+
+            const fechaLog =
+            new Date(
+                partes[2],
+                partes[1] - 1,
+                partes[0]
+            );
+
+            const diferenciaDias =
+            (ahora - fechaLog) /
+            (1000 * 60 * 60 * 24);
+
+            if (fecha === "hoy") {
+                return diferenciaDias < 1;
+            }
+
+            if (fecha === "semana") {
+                return diferenciaDias <= 7;
+            }
+
+            if (fecha === "mes") {
+                return diferenciaDias <= 30;
+            }
+
+            return true;
+        });
+    }
+
+    document.getElementById(
+        "total-registros"
+    ).textContent =
+    `${logs.length} Entradas Procesadas`;
+
+    const tabla =
+    document.getElementById(
+        "audit-body"
+    );
+
+    tabla.innerHTML = "";
+
+    if (logs.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">No hay registros que coincidan con los filtros.</td></tr>';
+        return;
+    }
+
+    logs.forEach(log => {
+
+        let claseEstado =
+        log.estado === "activo"
+        ? "badge activo"
+        : "badge inactivo";
+
+        let textoEstado =
+        log.estado === "activo"
+        ? "PERMITIDO"
+        : "DENEGADO";
+
+        tabla.innerHTML += `
+
+        <tr>
+
+            <td>${log.fecha}</td>
+
+            <td>${log.nombre || 'Desconocido'}</td>
+
+            <td>${log.metodo || 'N/A'}</td>
+
+            <td>${log.ubicacion || 'N/A'}</td>
+
+            <td>
+
+                <span class="${claseEstado}">
+                    ${textoEstado}
+                </span>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+window.addEventListener('load', cargarAuditoria);
+setInterval(cargarAuditoria, 5000);
+
+// FUNCIONES DE PERFIL Y NOTIFICACIONES
+async function cargarSesion() {
+    try {
+        const res = await fetch('/api/sesion');
+        if (res.ok) {
+            const sesion = await res.json();
+            if (sesion.logueado) {
+                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
+                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
+                document.getElementById('perfil-email').textContent = sesion.usuario_email;
+            }
+        }
+    } catch (err) {
+        console.error('Error cargando sesión:', err);
+    }
+}
+
+function actualizarHora() {
+    const ahora = new Date();
+    const hora = ahora.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit'
+    });
+    document.getElementById('perfil-hora').textContent = hora;
+}
+
+function abrirPerfil() {
+    document.getElementById('modalPerfil').classList.add('show');
+    actualizarHora();
+}
+
+function cerrarPerfil() {
+    document.getElementById('modalPerfil').classList.remove('show');
+}
+
+function cerrarSesion() {
+    if (confirm('¿Deseas cerrar sesión?')) {
+        window.location.href = '/logout';
+    }
+}
+
+async function cargarNotificaciones() {
+    try {
+        const res = await fetch('/auditoria_datos');
+        const logs = await res.json();
+        
+        const notificaciones = logs.slice(-5).reverse();
+        
+        document.getElementById('notif-badge').textContent = notificaciones.length;
+        
+        const lista = document.getElementById('notif-list');
+        lista.innerHTML = '';
+        
+        if (notificaciones.length === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
+            return;
+        }
+        
+        notificaciones.forEach(log => {
+            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
+                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
+                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
+            
+            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
+            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
+            
+            const item = document.createElement('div');
+            item.className = `notif-item ${estado}`;
+            item.innerHTML = `
+                <i class="bi ${icono} notif-icon"></i>
+                <div class="notif-content">
+                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
+                    <small>${log.metodo || 'Método desconocido'}</small>
+                    <small>${log.ubicacion || 'Ubicación'}</small>
+                    <small>${log.fecha || 'Hora no disponible'}</small>
+                </div>
+                <span class="notif-estado ${estado}">${estadoText}</span>
+            `;
+            lista.appendChild(item);
+        });
+    } catch (err) {
+        console.error('Error cargando notificaciones:', err);
+    }
+}
+
+function abrirNotificaciones() {
+    document.getElementById('modalNotificaciones').classList.add('show');
+    cargarNotificaciones();
+}
+
+function cerrarNotificaciones() {
+    document.getElementById('modalNotificaciones').classList.remove('show');
+}
+
+window.onclick = function(event) {
+    const modalPerfil = document.getElementById('modalPerfil');
+    const modalNotif = document.getElementById('modalNotificaciones');
+    
+    if (event.target === modalPerfil) {
+        modalPerfil.classList.remove('show');
+    }
+    if (event.target === modalNotif) {
+        modalNotif.classList.remove('show');
+    }
+}
+
+(function() {
+    cargarSesion();
+    actualizarHora();
+    setInterval(actualizarHora, 1000);
+    setInterval(cargarNotificaciones, 5000);
+})();
+
+</script>
+
+
 
 </body>
 </html>

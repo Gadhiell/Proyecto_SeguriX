@@ -11,6 +11,8 @@
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <script src="/dashboard.js"></script>
 
 </head>
 <body>
@@ -31,7 +33,7 @@
             <span>Panel de Control</span>
         </a>
 
-        <a href="#" class="nav-item active">
+        <a href="/usuarios" class="nav-item active">
             <i class="bi bi-people-fill"></i>
             <span>Usuarios</span>
         </a>
@@ -48,25 +50,634 @@
 
     </div>
 
-    <div class="nav-icons">
+    </div>
 
-        <div class="notification">
+</div>
 
-            <i class="bi bi-bell-fill"></i>
+<div class="panel-container">
+
+    <div class="page-header">
+
+        <h1>Administración de Usuarios</h1>
+
+        <p>
+            Gestión de usuarios, credenciales y permisos registrados en SeguriX.
+        </p>
+
+    </div>
+
+    <div class="usuarios-toolbar">
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input
+            type="text"
+            placeholder="Buscar usuario">
 
         </div>
 
-        <div class="profile-button">
+        <button
+        type="button"
+        class="action-btn"
+        onclick="abrirModal()">
 
-            <i class="bi bi-person-circle"></i>
+            <i class="bi bi-person-plus-fill"></i>
+            Nuevo Usuario
+
+        </button>
+
+    </div>
+
+    <div class="tabla-container">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>Usuarios Registrados</h2>
+
+                <p class="table-subtitle">
+                    Credenciales activas dentro del sistema.
+                </p>
+
+            </div>
 
         </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>RUT</th>
+                    <th>Rol</th>
+                    <th>Método</th>
+                    <th>Estado</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="tabla-usuarios"></tbody>
+
+        </table>
 
     </div>
 
 </div>
 
-<div class="panel-container"></div>
+<div id="modalOverlay" class="modal-overlay">
+
+    <div class="modal-usuario">
+
+        <div class="modal-header">
+
+            <h2>
+                REGISTRAR NUEVO USUARIO - SMART ACCESS
+            </h2>
+
+        </div>
+
+        <form
+        method="POST"
+        action="/agregar_usuario">
+
+            <div class="modal-body">
+
+                <div class="modal-left">
+
+                    <div class="avatar-preview">
+
+                        <i class="bi bi-person-fill"></i>
+
+                    </div>
+
+                    <label>Nombre Completo</label>
+
+                    <input
+                    type="text"
+                    name="nombre"
+                    required>
+
+                    <label>RUT</label>
+
+                    <input
+                    type="text"
+                    id="rut"
+                    name="rut"
+                    placeholder="12.345.678-9"
+                    required>
+
+                    <label>Empresa u Organización</label>
+
+                    <input
+                    type="text"
+                    name="empresa">
+
+                    <label>Email</label>
+
+                    <input
+                    type="email"
+                    name="email">
+
+                </div>
+
+                <div class="modal-right">
+
+                    <label>Método de Acceso</label>
+
+                    <input
+                    type="hidden"
+                    id="metodo"
+                    name="metodo"
+                    required>
+
+
+                    
+
+                    <div class="metodos-acceso">
+
+                        <button
+                        type="button"
+                        class="metodo-btn">
+
+                            <i class="bi bi-qr-code-scan"></i>
+                            Código QR
+
+                        </button>
+
+                        <button
+                        type="button"
+                        class="metodo-btn">
+
+                            <i class="bi bi-fingerprint"></i>
+                            Huella Digital
+
+                        </button>
+
+                        <button
+                        type="button"
+                        class="metodo-btn">
+
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                            Tarjeta
+
+                        </button>
+
+                    </div>
+
+                    <label>Valor de Credencial</label>
+
+                    <div class="credencial-box">
+
+                        <input
+                        type="text"
+                        id="credencial"
+                        name="credencial"
+                        readonly>
+
+                        <button
+                        type="button"
+                        class="secondary-btn"
+                        onclick="generarCredencial()">
+                            Regenerar
+                        </button>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div>
+
+                            <label>Rol de Usuario</label>
+
+                            <select name="rol">
+
+                                <option>Administrador</option>
+                                <option>Empleado</option>
+                                <option>Proveedor</option>
+                                <option>Visitante</option>
+
+                            </select>
+
+                        </div>
+
+                        <div>
+
+                            <label>Fecha de Expiración</label>
+
+                            <input
+                            type="date"
+                            name="expiracion"
+                            required>
+                        </div>
+
+                    </div>
+
+                    <label>Zonas Permitidas</label>
+
+                    <input
+                    type="text"
+                    name="zonas"
+                    placeholder="Entrada Principal, Bodega, Oficina">
+
+                    <div class="modal-actions">
+
+                        <button
+                        type="button"
+                        class="cancel-btn"
+                        onclick="cerrarModal()">
+
+                            Cancelar
+
+                        </button>
+
+                        <button
+                        type="submit"
+                        class="save-btn">
+
+                            Guardar y Activar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+function abrirModal() {
+
+    generarCredencial();
+
+    document
+    .getElementById("modalOverlay")
+    .classList
+    .add("active");
+
+}
+
+function cerrarModal() {
+
+    document
+    .getElementById("modalOverlay")
+    .classList
+    .remove("active");
+
+}
+
+function generarCredencial() {
+
+    const caracteres =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let hash = "SEC_";
+
+    for(let i = 0; i < 16; i++) {
+
+        hash += caracteres.charAt(
+
+            Math.floor(
+                Math.random() *
+                caracteres.length
+            )
+
+        );
+
+    }
+
+    document
+    .getElementById("credencial")
+    .value = hash;
+
+}
+
+const botonesMetodo =
+document.querySelectorAll(".metodo-btn");
+
+botonesMetodo.forEach(btn => {
+
+    btn.addEventListener("click", (e) => {
+
+        e.preventDefault();
+
+        botonesMetodo.forEach(b =>
+            b.classList.remove("selected")
+        );
+
+        btn.classList.add("selected");
+
+        // Map button text to normalized method value
+        const textoBtn = btn.textContent.trim();
+        let metodoValue = textoBtn;
+
+        if (textoBtn.includes("QR")) {
+            metodoValue = "Código QR";
+        } else if (textoBtn.includes("Huella")) {
+            metodoValue = "Huella Digital";
+        } else if (textoBtn.includes("Tarjeta")) {
+            metodoValue = "Tarjeta";
+        }
+
+        document
+        .getElementById("metodo")
+        .value = metodoValue;
+
+    });
+
+});
+
+document
+.getElementById("rut")
+.addEventListener("blur", function() {
+
+    const patron =
+    /^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$/;
+
+    if (
+
+        this.value !== "" &&
+        !patron.test(this.value)
+
+    ) {
+
+        alert(
+            "Formato válido: 12.345.678-9"
+        );
+
+        this.focus();
+
+    }
+
+});
+
+document
+.querySelector("form")
+.addEventListener("submit", function(e) {
+
+    const rut =
+    document.getElementById("rut").value;
+
+    const metodo =
+    document.getElementById("metodo").value;
+
+    const patron =
+    /^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$/;
+
+    if (!patron.test(rut)) {
+
+        alert(
+            "Ingrese un RUT válido."
+        );
+
+        e.preventDefault();
+
+        return;
+
+    }
+
+    if (metodo === "") {
+
+        alert(
+            "Seleccione un método de acceso."
+        );
+
+        e.preventDefault();
+
+        return;
+
+    }
+
+});
+
+
+async function cargarUsuarios() {
+
+    const res =
+    await fetch("/api/usuarios");
+
+    const usuarios =
+    await res.json();
+
+    const tabla =
+    document.getElementById(
+        "tabla-usuarios"
+    );
+
+    tabla.innerHTML = "";
+
+    usuarios.forEach(usuario => {
+
+        tabla.innerHTML += `
+
+        <tr>
+
+            <td>${usuario.id}</td>
+
+            <td>${usuario.nombre}</td>
+
+            <td>${usuario.rut}</td>
+
+            <td>${usuario.rol}</td>
+
+            <td>${usuario.metodo || 'N/A'}</td>
+
+            <td>
+
+                <span class="badge ${usuario.activo ? 'activo' : 'inactivo'}">
+
+                    ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
+
+                </span>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    if (usuarios.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No hay usuarios registrados aún.</td></tr>';
+    }
+
+}
+
+// Search functionality
+document.querySelector('.search-box input').addEventListener('input', async (e) => {
+    const busqueda = e.target.value.toLowerCase();
+    const res = await fetch('/api/usuarios');
+    const usuarios = await res.json();
+
+    const filtrados = usuarios.filter(u =>
+        u.nombre.toLowerCase().includes(busqueda) ||
+        u.rut.includes(busqueda) ||
+        u.email?.toLowerCase().includes(busqueda)
+    );
+
+    const tabla = document.getElementById('tabla-usuarios');
+    tabla.innerHTML = '';
+
+    filtrados.forEach(usuario => {
+        tabla.innerHTML += `
+        <tr>
+            <td>${usuario.id}</td>
+            <td>${usuario.nombre}</td>
+            <td>${usuario.rut}</td>
+            <td>${usuario.rol}</td>
+            <td>${usuario.metodo || 'N/A'}</td>
+            <td>
+                <span class="badge ${usuario.activo ? 'activo' : 'inactivo'}">
+                    ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
+                </span>
+            </td>
+        </tr>`;
+    });
+
+    if (filtrados.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No hay usuarios que coincidan.</td></tr>';
+    }
+});
+
+// Reload users when modal closes
+const modalOverlay = document.getElementById('modalOverlay');
+const observer = new MutationObserver(() => {
+    if (!modalOverlay.classList.contains('active')) {
+        setTimeout(() => cargarUsuarios(), 300);
+    }
+});
+observer.observe(modalOverlay, { attributes: true, attributeFilter: ['class'] });
+
+// FUNCIONES DE PERFIL Y NOTIFICACIONES
+async function cargarSesion() {
+    try {
+        const res = await fetch('/api/sesion');
+        if (res.ok) {
+            const sesion = await res.json();
+            if (sesion.logueado) {
+                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
+                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
+                document.getElementById('perfil-email').textContent = sesion.usuario_email;
+            }
+        }
+    } catch (err) {
+        console.error('Error cargando sesión:', err);
+    }
+}
+
+function actualizarHora() {
+    const ahora = new Date();
+    const hora = ahora.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit'
+    });
+    document.getElementById('perfil-hora').textContent = hora;
+}
+
+function abrirPerfil() {
+    document.getElementById('modalPerfil').classList.add('show');
+    actualizarHora();
+}
+
+function cerrarPerfil() {
+    document.getElementById('modalPerfil').classList.remove('show');
+}
+
+function cerrarSesion() {
+    if (confirm('¿Deseas cerrar sesión?')) {
+        window.location.href = '/logout';
+    }
+}
+
+async function cargarNotificaciones() {
+    try {
+        const res = await fetch('/auditoria_datos');
+        const logs = await res.json();
+        
+        const notificaciones = logs.slice(-5).reverse();
+        
+        document.getElementById('notif-badge').textContent = notificaciones.length;
+        
+        const lista = document.getElementById('notif-list');
+        lista.innerHTML = '';
+        
+        if (notificaciones.length === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
+            return;
+        }
+        
+        notificaciones.forEach(log => {
+            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
+                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
+                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
+            
+            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
+            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
+            
+            const item = document.createElement('div');
+            item.className = `notif-item ${estado}`;
+            item.innerHTML = `
+                <i class="bi ${icono} notif-icon"></i>
+                <div class="notif-content">
+                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
+                    <small>${log.metodo || 'Método desconocido'}</small>
+                    <small>${log.ubicacion || 'Ubicación'}</small>
+                    <small>${log.fecha || 'Hora no disponible'}</small>
+                </div>
+                <span class="notif-estado ${estado}">${estadoText}</span>
+            `;
+            lista.appendChild(item);
+        });
+    } catch (err) {
+        console.error('Error cargando notificaciones:', err);
+    }
+}
+
+function abrirNotificaciones() {
+    document.getElementById('modalNotificaciones').classList.add('show');
+    cargarNotificaciones();
+}
+
+function cerrarNotificaciones() {
+    document.getElementById('modalNotificaciones').classList.remove('show');
+}
+
+window.onclick = function(event) {
+    const modalPerfil = document.getElementById('modalPerfil');
+    const modalNotif = document.getElementById('modalNotificaciones');
+    
+    if (event.target === modalPerfil) {
+        modalPerfil.classList.remove('show');
+    }
+    if (event.target === modalNotif) {
+        modalNotif.classList.remove('show');
+    }
+}
+
+window.addEventListener('load', () => {
+    cargarSesion();
+    cargarUsuarios();
+    actualizarHora();
+    setInterval(actualizarHora, 1000);
+    setInterval(cargarNotificaciones, 5000);
+});
+
+</script>
 
 </body>
 </html>

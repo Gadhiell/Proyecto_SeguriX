@@ -1,0 +1,101 @@
+<!-- NAVBAR Y MODALES DEL DASHBOARD - COMPONENTE REUTILIZABLE -->
+
+<!-- NAVBAR -->
+<div class="navbar" id="dashboard-navbar">
+
+    <!-- IZQUIERDA(Logos E Imagenes) -->
+    <div class="nav-left">
+
+        <img src="/static/logo.png" class="nav-logo">
+        <img src="/static/Wordmark.png" class="nav-Wordmark">
+
+    </div>
+
+    <!-- CENTRO(Dashboard) -->
+    <div class="nav-menu">
+
+        <a href="/panel" class="nav-item" data-page="panel">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Panel de Control</span>
+        </a>
+
+        <a href="/usuarios" class="nav-item" data-page="usuarios">
+            <i class="bi bi-people-fill"></i>
+            <span>Usuarios</span>
+        </a>
+
+        <a href="/auditoria" class="nav-item" data-page="auditoria">
+            <i class="bi bi-file-earmark-text-fill"></i>
+            <span>Auditoría</span>
+        </a>
+
+        <a href="/estadosys" class="nav-item" data-page="estadosys">
+            <i class="bi bi-shield-check"></i>
+            <span>Estado del Sistema</span>
+        </a>
+
+    </div>
+
+    <!-- DERECHA(Perfil Y Notificaciones) -->
+    <div class="nav-icons">
+
+        <div class="notification" onclick="abrirNotificaciones()">
+
+            <i class="bi bi-bell-fill"></i>
+            <span class="notification-badge" id="notif-badge">0</span>
+
+        </div>
+
+        <div class="profile-button" onclick="abrirPerfil()">
+
+            <i class="bi bi-person-circle"></i>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL PERFIL -->
+<div id="modalPerfil" class="modal-dashboard" style="display:none;">
+    <div class="modal-content-dashboard perfil-modal-dashboard">
+        <span class="close-modal-dashboard" onclick="cerrarPerfil()">&times;</span>
+        
+        <div class="perfil-header-dashboard">
+            <i class="bi bi-person-circle perfil-icon-dashboard"></i>
+            <div>
+                <h2 id="perfil-nombre-dashboard">Usuario</h2>
+                <p id="perfil-rol-dashboard" style="color:#999;font-size:0.9em;">Rol</p>
+            </div>
+        </div>
+        
+        <div class="perfil-info-dashboard">
+            <div class="info-item-dashboard">
+                <label>Email:</label>
+                <p id="perfil-email-dashboard">email@example.com</p>
+            </div>
+            <div class="info-item-dashboard">
+                <label>Hora Actual:</label>
+                <p id="perfil-hora-dashboard">--:--:--</p>
+            </div>
+        </div>
+        
+        <button class="logout-btn-dashboard" onclick="cerrarSesion()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+        </button>
+    </div>
+</div>
+
+
+<!-- MODAL NOTIFICACIONES -->
+<div id="modalNotificaciones" class="modal-dashboard" style="display:none;">
+    <div class="modal-content-dashboard notif-modal-dashboard">
+        <span class="close-modal-dashboard" onclick="cerrarNotificaciones()">&times;</span>
+        
+        <h2>Notificaciones de Acceso</h2>
+        <div id="notif-list-dashboard" class="notif-list-dashboard">
+            <p style="text-align:center;color:#999;">Cargando...</p>
+        </div>
+    </div>
+</div>
