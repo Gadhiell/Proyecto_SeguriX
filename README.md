@@ -1,4 +1,4 @@
-<img width="1274" height="276" alt="10A8D0BC-865C-4058-AEC6-9430A859F0E3" src="https://github.com/user-attachments/assets/a847be38-9ee1-48ca-9407-f746daf179ad" />
+
 # SeguriX
 
 ## Logo de SeguriX
@@ -42,7 +42,7 @@ En este proyecto Flask se encarga de:
 
 
 ## Paleta de colores utilizada
-<img width="700" height="240" alt="10A8D0BC-865C-4058-AEC6-9430A859F0E3" src="https://github.com/user-attachments/assets/ed1f2c83-921c-4dbc-82bf-b795a3839a2c" />
+<img width="1274" height="276" alt="10A8D0BC-865C-4058-AEC6-9430A859F0E3" src="https://github.com/user-attachments/assets/a847be38-9ee1-48ca-9407-f746daf179ad" />
 
 
 
