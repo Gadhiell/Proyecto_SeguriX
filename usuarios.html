@@ -7,7 +7,7 @@
 
     <title>Usuarios - SeguriX</title>
 
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/Styles.css">
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -17,43 +17,7 @@
 </head>
 <body>
 
-<div class="navbar">
-
-    <div class="nav-left">
-
-        <img src="/static/logo.png" class="nav-logo">
-        <img src="/static/Wordmark.png" class="nav-Wordmark">
-
-    </div>
-
-    <div class="nav-menu">
-
-        <a href="/panel" class="nav-item">
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Panel de Control</span>
-        </a>
-
-        <a href="/usuarios" class="nav-item active">
-            <i class="bi bi-people-fill"></i>
-            <span>Usuarios</span>
-        </a>
-
-        <a href="/auditoria" class="nav-item">
-            <i class="bi bi-file-earmark-text-fill"></i>
-            <span>Auditoría</span>
-        </a>
-
-        <a href="/estadosys" class="nav-item">
-            <i class="bi bi-shield-check"></i>
-            <span>Estado del Sistema</span>
-        </a>
-
-    </div>
-
-    </div>
-
-</div>
-
+<!-- navbar inyectado por dashboard.js -->
 <div class="panel-container">
 
     <div class="page-header">
@@ -144,8 +108,9 @@
         </div>
 
         <form
+        id="usuarioForm"
         method="POST"
-        action="/agregar_usuario">
+        action="/api/usuarios">
 
             <div class="modal-body">
 
@@ -320,23 +285,30 @@
 <script>
 
 function abrirModal() {
-
-    generarCredencial();
+    resetearFormulario();
 
     document
     .getElementById("modalOverlay")
     .classList
     .add("active");
-
 }
 
 function cerrarModal() {
-
     document
     .getElementById("modalOverlay")
     .classList
     .remove("active");
+    resetearFormulario();
+}
 
+function resetearFormulario() {
+    const form = document.getElementById('usuarioForm');
+    if (!form) return;
+    form.reset();
+    generarCredencial();
+    if (botonesMetodo.length > 0) {
+        seleccionarMetodo(botonesMetodo[0]);
+    }
 }
 
 function generarCredencial() {
@@ -368,36 +340,29 @@ function generarCredencial() {
 const botonesMetodo =
 document.querySelectorAll(".metodo-btn");
 
+function seleccionarMetodo(btn) {
+    botonesMetodo.forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+
+    const textoBtn = btn.textContent.trim();
+    let metodoValue = textoBtn;
+
+    if (textoBtn.includes("QR")) {
+        metodoValue = "Código QR";
+    } else if (textoBtn.includes("Huella")) {
+        metodoValue = "Huella Digital";
+    } else if (textoBtn.includes("Tarjeta")) {
+        metodoValue = "Tarjeta";
+    }
+
+    document.getElementById("metodo").value = metodoValue;
+}
+
 botonesMetodo.forEach(btn => {
-
     btn.addEventListener("click", (e) => {
-
         e.preventDefault();
-
-        botonesMetodo.forEach(b =>
-            b.classList.remove("selected")
-        );
-
-        btn.classList.add("selected");
-
-        // Map button text to normalized method value
-        const textoBtn = btn.textContent.trim();
-        let metodoValue = textoBtn;
-
-        if (textoBtn.includes("QR")) {
-            metodoValue = "Código QR";
-        } else if (textoBtn.includes("Huella")) {
-            metodoValue = "Huella Digital";
-        } else if (textoBtn.includes("Tarjeta")) {
-            metodoValue = "Tarjeta";
-        }
-
-        document
-        .getElementById("metodo")
-        .value = metodoValue;
-
+        seleccionarMetodo(btn);
     });
-
 });
 
 document
@@ -425,135 +390,149 @@ document
 });
 
 document
-.querySelector("form")
-.addEventListener("submit", function(e) {
+.getElementById('usuarioForm')
+.addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-    const rut =
-    document.getElementById("rut").value;
-
-    const metodo =
-    document.getElementById("metodo").value;
-
-    const patron =
-    /^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$/;
+    const rut = document.getElementById('rut').value;
+    const metodo = document.getElementById('metodo').value;
+    const patron = /^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$/;
 
     if (!patron.test(rut)) {
-
-        alert(
-            "Ingrese un RUT válido."
-        );
-
-        e.preventDefault();
-
+        alert('Ingrese un RUT válido.');
         return;
-
     }
 
-    if (metodo === "") {
-
-        alert(
-            "Seleccione un método de acceso."
-        );
-
-        e.preventDefault();
-
+    if (metodo === '') {
+        alert('Seleccione un método de acceso.');
         return;
-
     }
 
+    const form = e.target;
+    const formData = new FormData(form);
+
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.error || 'No se pudo crear el usuario.');
+            return;
+        }
+
+        cerrarModal();
+        cargarUsuarios();
+
+    } catch (err) {
+        console.error('Error creando usuario:', err);
+        alert('Ocurrió un error creando el usuario.');
+    }
 });
 
 
 async function cargarUsuarios() {
+    try {
+        const res = await fetch("/api/usuarios");
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
 
-    const res =
-    await fetch("/api/usuarios");
+        const usuarios = await res.json();
+        const tabla = document.getElementById("tabla-usuarios");
 
-    const usuarios =
-    await res.json();
+        if (!tabla) {
+            return;
+        }
 
-    const tabla =
-    document.getElementById(
-        "tabla-usuarios"
-    );
+        // almacenar usuarios para usar en la busqueda
+        window.usuariosCache = usuarios;
 
-    tabla.innerHTML = "";
+        tabla.innerHTML = "";
 
-    usuarios.forEach(usuario => {
+        usuarios.forEach(usuario => {
+            tabla.innerHTML += `
+            <tr>
+                <td>${usuario.id}</td>
+                <td>${usuario.nombre}</td>
+                <td>${usuario.rut}</td>
+                <td>${usuario.rol}</td>
+                <td>${usuario.metodo || 'N/A'}</td>
+                <td>
+                    <span class="badge ${usuario.activo ? 'activo' : 'inactivo'}">
+                        ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
+                    </span>
+                </td>
+            </tr>
+            `;
+        });
 
-        tabla.innerHTML += `
-
-        <tr>
-
-            <td>${usuario.id}</td>
-
-            <td>${usuario.nombre}</td>
-
-            <td>${usuario.rut}</td>
-
-            <td>${usuario.rol}</td>
-
-            <td>${usuario.metodo || 'N/A'}</td>
-
-            <td>
-
-                <span class="badge ${usuario.activo ? 'activo' : 'inactivo'}">
-
-                    ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
-
-                </span>
-
-            </td>
-
-        </tr>
-
-        `;
-
-    });
-
-    if (usuarios.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No hay usuarios registrados aún.</td></tr>';
+        if (usuarios.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No hay usuarios registrados aún.</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error cargando usuarios:', err);
+        const tabla = document.getElementById("tabla-usuarios");
+        if (tabla) {
+            tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Error cargando usuarios.</td></tr>';
+        }
     }
-
 }
 
-// Search functionality
-document.querySelector('.search-box input').addEventListener('input', async (e) => {
-    const busqueda = e.target.value.toLowerCase();
-    const res = await fetch('/api/usuarios');
-    const usuarios = await res.json();
+// Funcion de búsqueda
+(() => {
+    const input = document.querySelector('.search-box input');
+    if (!input) return;
 
-    const filtrados = usuarios.filter(u =>
-        u.nombre.toLowerCase().includes(busqueda) ||
-        u.rut.includes(busqueda) ||
-        u.email?.toLowerCase().includes(busqueda)
-    );
+    let timer = null;
+    input.addEventListener('input', (e) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            const q = (e.target.value || '').toLowerCase().trim();
+            const usuarios = window.usuariosCache || [];
 
-    const tabla = document.getElementById('tabla-usuarios');
-    tabla.innerHTML = '';
+            const filtrados = usuarios.filter(u => {
+                const nombre = (u.nombre || '').toLowerCase();
+                const rut = (u.rut || '').toString();
+                const email = (u.email || '').toLowerCase();
+                return (
+                    nombre.includes(q) ||
+                    rut.includes(q) ||
+                    email.includes(q)
+                );
+            });
 
-    filtrados.forEach(usuario => {
-        tabla.innerHTML += `
-        <tr>
-            <td>${usuario.id}</td>
-            <td>${usuario.nombre}</td>
-            <td>${usuario.rut}</td>
-            <td>${usuario.rol}</td>
-            <td>${usuario.metodo || 'N/A'}</td>
-            <td>
-                <span class="badge ${usuario.activo ? 'activo' : 'inactivo'}">
-                    ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
-                </span>
-            </td>
-        </tr>`;
+            const tabla = document.getElementById('tabla-usuarios');
+            tabla.innerHTML = '';
+
+            filtrados.forEach(usuario => {
+                tabla.innerHTML += `
+                <tr>
+                    <td>${usuario.id}</td>
+                    <td>${usuario.nombre}</td>
+                    <td>${usuario.rut}</td>
+                    <td>${usuario.rol}</td>
+                    <td>${usuario.metodo || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${usuario.activo ? 'activo' : 'inactivo'}">
+                            ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
+                        </span>
+                    </td>
+                </tr>`;
+            });
+
+            if (filtrados.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No hay usuarios que coincidan.</td></tr>';
+            }
+        }, 200);
     });
+})();
 
-    if (filtrados.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">No hay usuarios que coincidan.</td></tr>';
-    }
-});
-
-// Reload users when modal closes
+// Recargar usuarios cuando el modal se cierra
 const modalOverlay = document.getElementById('modalOverlay');
 const observer = new MutationObserver(() => {
     if (!modalOverlay.classList.contains('active')) {
@@ -562,119 +541,9 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(modalOverlay, { attributes: true, attributeFilter: ['class'] });
 
-// FUNCIONES DE PERFIL Y NOTIFICACIONES
-async function cargarSesion() {
-    try {
-        const res = await fetch('/api/sesion');
-        if (res.ok) {
-            const sesion = await res.json();
-            if (sesion.logueado) {
-                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
-                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
-                document.getElementById('perfil-email').textContent = sesion.usuario_email;
-            }
-        }
-    } catch (err) {
-        console.error('Error cargando sesión:', err);
-    }
-}
-
-function actualizarHora() {
-    const ahora = new Date();
-    const hora = ahora.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit'
-    });
-    document.getElementById('perfil-hora').textContent = hora;
-}
-
-function abrirPerfil() {
-    document.getElementById('modalPerfil').classList.add('show');
-    actualizarHora();
-}
-
-function cerrarPerfil() {
-    document.getElementById('modalPerfil').classList.remove('show');
-}
-
-function cerrarSesion() {
-    if (confirm('¿Deseas cerrar sesión?')) {
-        window.location.href = '/logout';
-    }
-}
-
-async function cargarNotificaciones() {
-    try {
-        const res = await fetch('/auditoria_datos');
-        const logs = await res.json();
-        
-        const notificaciones = logs.slice(-5).reverse();
-        
-        document.getElementById('notif-badge').textContent = notificaciones.length;
-        
-        const lista = document.getElementById('notif-list');
-        lista.innerHTML = '';
-        
-        if (notificaciones.length === 0) {
-            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
-            return;
-        }
-        
-        notificaciones.forEach(log => {
-            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
-                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
-                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
-            
-            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
-            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
-            
-            const item = document.createElement('div');
-            item.className = `notif-item ${estado}`;
-            item.innerHTML = `
-                <i class="bi ${icono} notif-icon"></i>
-                <div class="notif-content">
-                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
-                    <small>${log.metodo || 'Método desconocido'}</small>
-                    <small>${log.ubicacion || 'Ubicación'}</small>
-                    <small>${log.fecha || 'Hora no disponible'}</small>
-                </div>
-                <span class="notif-estado ${estado}">${estadoText}</span>
-            `;
-            lista.appendChild(item);
-        });
-    } catch (err) {
-        console.error('Error cargando notificaciones:', err);
-    }
-}
-
-function abrirNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.add('show');
-    cargarNotificaciones();
-}
-
-function cerrarNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.remove('show');
-}
-
-window.onclick = function(event) {
-    const modalPerfil = document.getElementById('modalPerfil');
-    const modalNotif = document.getElementById('modalNotificaciones');
-    
-    if (event.target === modalPerfil) {
-        modalPerfil.classList.remove('show');
-    }
-    if (event.target === modalNotif) {
-        modalNotif.classList.remove('show');
-    }
-}
-
 window.addEventListener('load', () => {
-    cargarSesion();
+    // Inicializar solo las funciones de esta pagina
     cargarUsuarios();
-    actualizarHora();
-    setInterval(actualizarHora, 1000);
-    setInterval(cargarNotificaciones, 5000);
 });
 
 </script>

@@ -3,6 +3,7 @@
 // Cargar el dashboard en la página
 async function cargarDashboard() {
     try {
+        if (window.location.pathname.includes('/panel')) return; // No inyectar en la pagina principal del Panel
         const res = await fetch('/dashboard.html');
         const html = await res.text();
         
@@ -67,7 +68,7 @@ function actualizarNavBar() {
 // Obtener página actual
 function obtenerPaginaActual() {
     const url = window.location.pathname;
-    if (url.includes('/panel')) return 'panel';
+    if (url.includes('/dashboard.html') || url.includes('/panel')) return 'panel';
     if (url.includes('/usuarios')) return 'usuarios';
     if (url.includes('/auditoria')) return 'auditoria';
     if (url.includes('/estadosys')) return 'estadosys';
@@ -184,5 +185,10 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// Cargar dashboard cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', cargarDashboard);
+// Cargar dashboard tan pronto como sea posible
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', cargarDashboard);
+} else {
+    // Documento ya esta parseado
+    cargarDashboard();
+}

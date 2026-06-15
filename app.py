@@ -1,9 +1,3 @@
-import sys
-import os
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-
 from flask import (
     Flask,
     send_from_directory,
@@ -15,7 +9,6 @@ from flask import (
 
 from routes.api_routes import api
 from repositories.usuario_repository import UsuarioRepository
-from data import memory_db
 
 
 def create_app():
@@ -28,56 +21,82 @@ def create_app():
     
     repo = UsuarioRepository()
 
+    #Manejo de errores global
+    @app.errorhandler(404)
+    def no_encontrado(error):
+        return jsonify({"error": "Recurso no encontrado"}), 404
+
+    @app.errorhandler(500)
+    def error_servidor(error):
+        return jsonify({"error": "Error interno del servidor"}), 500
+
+
     @app.route("/")
     def home():
-
-        return send_from_directory(".", "index.html")
+        try:
+            return send_from_directory(".", "index.html")
+        except Exception as e:
+            print(f"Error cargando home: {e}")
+            return jsonify({"error": "No se pudo cargar la página"}), 500
 
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
 
         if request.method == "POST":
-            
-            # En modo desarrollo, acepta cualquier usuario y contraseña
-            usuario_input = request.form.get("usuario", "Usuario Test")
-            
-            # Crear sesión con usuario genérico
-            session["usuario_id"] = "USR_TEST"
-            session["usuario_nombre"] = usuario_input or "Usuario SeguriX"
-            session["usuario_rol"] = "Usuario"
-            session["usuario_email"] = f"{usuario_input}@segurix.cl"
-            
-            return redirect("/panel")
+            try:
+                #Obtener datos del formulario
+                usuario_input = request.form.get("usuario", "").strip()
+                
+                #Validar que no esté vacío
+                if not usuario_input:
+                    return jsonify({"error": "Usuario requerido"}), 400
+
+                #Guardar datos en sesión
+                session["usuario_id"] = "USR_TEST"
+                session["usuario_nombre"] = usuario_input
+                session["usuario_rol"] = "Usuario"
+                session["usuario_email"] = f"{usuario_input}@segurix.cl"
+                
+                return redirect("/panel")
+                
+            except Exception as e:
+                print(f"Error en login: {e}")
+                return jsonify({"error": "Error al iniciar sesión"}), 500
 
         return send_from_directory(".", "login.html")
     
     
     @app.route("/logout")
     def logout():
-        
-        session.clear()
-        return redirect("/")
+        try:
+            session.clear()
+            return redirect("/")
+        except Exception as e:
+            print(f"Error en logout: {e}")
+            return redirect("/")
     
     
     @app.route("/api/sesion")
     def obtener_sesion():
-        
-        if "usuario_id" in session:
-            return jsonify({
-                "usuario_id": session.get("usuario_id"),
-                "usuario_nombre": session.get("usuario_nombre"),
-                "usuario_rol": session.get("usuario_rol"),
-                "usuario_email": session.get("usuario_email"),
-                "logueado": True
-            })
-        else:
+        try:
+            if "usuario_id" in session:
+                return jsonify({
+                    "usuario_id": session.get("usuario_id"),
+                    "usuario_nombre": session.get("usuario_nombre"),
+                    "usuario_rol": session.get("usuario_rol"),
+                    "usuario_email": session.get("usuario_email"),
+                    "logueado": True
+                })
+            else:
+                return jsonify({"logueado": False}), 401
+        except Exception as e:
+            print(f"Error obteniendo sesión: {e}")
             return jsonify({"logueado": False}), 401
 
 
     @app.route("/password_reset")
     def nueva_contraseña():
-
         return send_from_directory(".", "password_reset.html")
 
 
@@ -136,11 +155,16 @@ def create_app():
         return response
 
 
+    @app.route('/static/<path:filename>')
+    def static_files(filename):
+        return send_from_directory('Static', filename)
+
+
     return app
 
 
 if __name__ == "__main__":
-
+ 
     app = create_app()
 
     app.run(debug=True)

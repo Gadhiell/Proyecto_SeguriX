@@ -1,10 +1,24 @@
 def validar_acceso(usuario_id, usuarios):
-    usuario = usuarios.get(usuario_id)
+    """
+    Verifica si un usuario puede acceder.
+    
+    Retorna: (permitido: bool, estado: str)
+    """
+    try:
+        # Buscar al usuario usando el ID como cadena para coincidir con las llaves en memoria
+        usuario = usuarios.get(str(usuario_id))
+        
+        # Si no existe, no permitir
+        if not usuario:
+            return False, "inactivo"
 
-    if not usuario:
+        # Si no está activo, no permitir
+        if not usuario.get("activo", False):
+            return False, "inactivo"
+
+        # Todo ok, permitir acceso
+        return True, "activo"
+        
+    except Exception as e:
+        print(f"Error validando acceso: {e}")
         return False, "inactivo"
-
-    if not usuario["activo"]:
-        return False, "inactivo"
-
-    return True, "activo"

@@ -7,7 +7,7 @@
 
     <title>Panel SeguriX</title>
 
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/Styles.css">
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -127,8 +127,9 @@
         height: 100%;
         background-color: rgba(0,0,0,0.5);
         display: none;
-        align-items: center;
+        align-items: flex-start;
         justify-content: flex-end;
+        padding-top: 80px;
     }
     
     .modal.show {
@@ -398,266 +399,199 @@
                 <tr>
 
                     <th>Hora/Fecha</th>
-                    <th>Usuario</th>
-                    <th>Tipo</th>
-                    <th>Método</th>
-                    <th>Ubicación</th>
-                    <th>Estado</th>
+                        <th>Usuario</th>
+                        <th>Método</th>
+                        <th>Acceso</th>
 
-                </tr>
+                    </tr>
 
-            </thead>
+                </thead>
 
-            <tbody id="logs"></tbody>
+                <tbody id="acceso-vivo-body">
+                    <tr>
+                        <td colspan="4" class="empty-row">Cargando accesos en vivo...</td>
+                    </tr>
+                </tbody>
 
-        </table>
+            </table>
+
+        </div>
+
 
     </div>
 
-</div>
+    <script>
+    // Scripts placeholder del panel (aqui puede ir inicializacion especifica de pagina)
+    window.addEventListener('load', () => {
+        // Asegurar inyeccion del dashboard y logica especifica del panel
+    });
+    </script>
 
-<script>
+    <script>
+    // Integracion especifica del panel: conectar APIs y modulos de forma coherente
+    async function actualizarPanel() {
+        try {
+            const res = await fetch('/api/estado_sistema');
+            if (!res.ok) return;
+            const estado = await res.json();
 
-// Cargar sesión del usuario
-async function cargarSesion() {
-    try {
-        const res = await fetch('/api/sesion');
-        if (res.ok) {
-            const sesion = await res.json();
-            if (sesion.logueado) {
-                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
-                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
-                document.getElementById('perfil-email').textContent = sesion.usuario_email;
+            const totalElem = document.getElementById('total-usuarios');
+            const accesosHoyElem = document.getElementById('accesos-hoy');
+            const alertasElem = document.getElementById('alertas-total');
+
+            if (totalElem) totalElem.textContent = estado.total_usuarios ?? 0;
+            if (accesosHoyElem) accesosHoyElem.textContent = estado.accesos_hoy ?? 0;
+            if (alertasElem) alertasElem.textContent = estado.alertas ?? 0;
+        } catch (err) {
+            console.error('Error actualizando panel:', err);
+        }
+    }
+
+    async function cargarAccesosEnVivo() {
+        try {
+            const res = await fetch('/auditoria_datos');
+            if (!res.ok) return;
+            const logs = await res.json();
+
+            const body = document.getElementById('acceso-vivo-body');
+            if (!body) return;
+
+            body.innerHTML = '';
+
+            if (!logs || logs.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" class="empty-row">No hay accesos recientes.</td></tr>';
+                return;
             }
-        } else {
-            window.location.href = '/login';
+
+            // Mostrar los 10 mas recientes
+            const recientes = logs.slice(-10).reverse();
+
+            recientes.forEach(log => {
+                const placeholderBadge = log.placeholder ? '<span class="placeholder-badge">placeholder</span>' : '';
+                const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
+                const row = `
+                    <tr>
+                        <td>${log.fecha}</td>
+                        <td>${(log.nombre || 'Desconocido')} ${placeholderBadge}</td>
+                        <td>${log.metodo || 'N/A'}</td>
+                        <td><span class="badge ${log.estado === 'activo' ? 'activo' : 'inactivo'}">${estadoText}</span></td>
+                    </tr>
+                `;
+                body.innerHTML += row;
+            });
+
+            // Tambien actualizar badge de notificaciones y lista del modal en este Panel
+            const badge = document.getElementById('notif-badge');
+            if (badge) badge.textContent = Math.min(9, logs.slice(-5).length);
+
+            const lista = document.getElementById('notif-list');
+            if (lista) {
+                const notifs = logs.slice(-5).reverse();
+                lista.innerHTML = '';
+                notifs.forEach(log => {
+                    const icono = (log.metodo || '').includes('QR') ? 'bi-qr-code-scan' :
+                                  (log.metodo || '').includes('Huella') ? 'bi-fingerprint' :
+                                  (log.metodo || '').includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
+                    const estadoCls = log.estado === 'activo' ? 'permitido' : 'denegado';
+                    const placeholderBadge = log.placeholder ? '<span class="placeholder-badge">placeholder</span>' : '';
+
+                    const item = document.createElement('div');
+                    item.className = `notif-item ${estadoCls}`;
+                    item.innerHTML = `
+                        <i class="bi ${icono} notif-icon"></i>
+                        <div class="notif-content">
+                            <strong>${log.nombre || 'Usuario ' + log.usuario_id} ${placeholderBadge}</strong>
+                            <small>${log.metodo || 'Método desconocido'}</small>
+                            <small>${log.ubicacion || 'Ubicación'}</small>
+                            <small>${log.fecha || ''}</small>
+                        </div>
+                        <span class="notif-estado ${estadoCls}">${log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO'}</span>
+                    `;
+                    lista.appendChild(item);
+                });
+            }
+
+        } catch (err) {
+            console.error('Error cargando accesos en vivo:', err);
         }
-    } catch (err) {
-        console.error('Error cargando sesión:', err);
     }
-}
 
-// Actualizar hora en tiempo real
-function actualizarHora() {
-    const ahora = new Date();
-    const hora = ahora.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit'
-    });
-    document.getElementById('perfil-hora').textContent = hora;
-}
-
-// Abrir modal de perfil
-function abrirPerfil() {
-    document.getElementById('modalPerfil').classList.add('show');
-    actualizarHora();
-}
-
-// Cerrar modal de perfil
-function cerrarPerfil() {
-    document.getElementById('modalPerfil').classList.remove('show');
-}
-
-// Cerrar sesión
-function cerrarSesion() {
-    if (confirm('¿Deseas cerrar sesión?')) {
-        window.location.href = '/logout';
-    }
-}
-
-// Cargar notificaciones
-async function cargarNotificaciones() {
-    try {
-        const res = await fetch('/auditoria_datos');
-        const logs = await res.json();
-        
-        // Obtener últimos 5 accesos
-        const notificaciones = logs.slice(-5).reverse();
-        
-        // Actualizar badge
-        document.getElementById('notif-badge').textContent = notificaciones.length;
-        
-        const lista = document.getElementById('notif-list');
-        lista.innerHTML = '';
-        
-        if (notificaciones.length === 0) {
-            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
-            return;
+    // Sobrescribir funciones globales para que los clicks usen implementaciones compatibles con el Panel
+    window.cargarNotificaciones = cargarAccesosEnVivo;
+    window.abrirNotificaciones = function() {
+        const modal = document.getElementById('modalNotificaciones');
+        if (modal) {
+            modal.classList.add('show');
+            cargarAccesosEnVivo();
         }
-        
-        notificaciones.forEach(log => {
-            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
-                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
-                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
-            
-            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
-            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
-            
-            const item = document.createElement('div');
-            item.className = `notif-item ${estado}`;
-            item.innerHTML = `
-                <i class="bi ${icono} notif-icon"></i>
-                <div class="notif-content">
-                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
-                    <small>${log.metodo || 'Método desconocido'}</small>
-                    <small>${log.ubicacion || 'Ubicación'}</small>
-                    <small>${log.fecha || 'Hora no disponible'}</small>
-                </div>
-                <span class="notif-estado ${estado}">${estadoText}</span>
-            `;
-            lista.appendChild(item);
+    };
+
+    window.cerrarNotificaciones = function() {
+        const modal = document.getElementById('modalNotificaciones');
+        if (modal) modal.classList.remove('show');
+    };
+
+    let panelHoraInterval = null;
+
+    function actualizarHoraPanel() {
+        const horaElem = document.getElementById('perfil-hora');
+        if (!horaElem) return;
+        const ahora = new Date();
+        horaElem.textContent = ahora.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
         });
-    } catch (err) {
-        console.error('Error cargando notificaciones:', err);
-        document.getElementById('notif-list').innerHTML = '<p style="text-align:center;color:red;">Error al cargar</p>';
     }
-}
 
-// Abrir modal de notificaciones
-function abrirNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.add('show');
-    cargarNotificaciones();
-}
+    async function cargarSesionPanel() {
+        try {
+            const res = await fetch('/api/sesion');
+            if (!res.ok) return;
 
-// Cerrar modal de notificaciones
-function cerrarNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.remove('show');
-}
+            const sesion = await res.json();
+            if (!sesion.logueado) return;
 
-// Cerrar modal al hacer click fuera
-window.onclick = function(event) {
-    const modalPerfil = document.getElementById('modalPerfil');
-    const modalNotif = document.getElementById('modalNotificaciones');
-    
-    if (event.target === modalPerfil) {
-        modalPerfil.classList.remove('show');
+            const nombreElem = document.getElementById('perfil-nombre');
+            const emailElem = document.getElementById('perfil-email');
+
+            if (nombreElem) nombreElem.textContent = sesion.usuario_nombre || 'Usuario';
+            if (emailElem) emailElem.textContent = sesion.usuario_email || 'email@example.com';
+            actualizarHoraPanel();
+
+            if (!panelHoraInterval) {
+                panelHoraInterval = setInterval(actualizarHoraPanel, 1000);
+            }
+        } catch (err) {
+            console.error('Error cargando sesión del panel:', err);
+        }
     }
-    if (event.target === modalNotif) {
-        modalNotif.classList.remove('show');
+
+    function abrirPerfil() {
+        const modal = document.getElementById('modalPerfil');
+        if (!modal) return;
+        modal.classList.add('show');
+        cargarSesionPanel();
     }
-}
 
-async function cargarEstadoPanel() {
-    try {
-        const estado = await fetch('/api/estado_sistema').then(r => r.json());
-        document.getElementById('total-usuarios').textContent = estado.total_usuarios || 0;
-        document.getElementById('accesos-hoy').textContent = estado.accesos_hoy || 0;
-        document.getElementById('alertas-total').textContent = estado.alertas || 0;
-    } catch (err) {
-        console.error('Error cargando estado del panel:', err);
+    function cerrarPerfil() {
+        const modal = document.getElementById('modalPerfil');
+        if (modal) modal.classList.remove('show');
+        if (panelHoraInterval) {
+            clearInterval(panelHoraInterval);
+            panelHoraInterval = null;
+        }
     }
-}
 
-async function simularAcceso(usuario_id, metodo) {
-
-    await fetch("/acceso", {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-
-            usuario_id : usuario_id,
-            metodo: metodo
-
-        })
-
+    // Inicializacion
+    window.addEventListener('load', () => {
+        actualizarPanel();
+        cargarAccesosEnVivo();
+        setInterval(actualizarPanel, 5000);
+        setInterval(cargarAccesosEnVivo, 5000);
     });
+    </script>
 
-    cargarLogs();
-}
-
-
-async function cargarLogs() {
-
-    const res = await fetch("/auditoria_datos");
-    const data = await res.json();
-
-    const tabla = document.getElementById("logs");
-
-    tabla.innerHTML = "";
-
-    data.slice(-10).reverse().forEach(log => {
-
-        const row = document.createElement("tr");
-
-        let claseEstado =
-        log.estado === "activo"
-        ? "badge activo"
-        : "badge inactivo";
-
-        let textoEstado =
-        log.estado === "activo"
-        ? "PERMITIDO"
-        : "DENEGADO";
-
-        let icono = "";
-
-        if (log.metodo?.includes("QR") || log.metodo === "Código QR") {
-
-            icono =
-            '<i class="bi bi-qr-code-scan"></i>';
-
-        }
-
-        else if (log.metodo?.includes("Huella") || log.metodo === "Huella Digital") {
-
-            icono =
-            '<i class="bi bi-fingerprint"></i>';
-
-        }
-
-        else if (log.metodo?.includes("Tarjeta")) {
-
-            icono =
-            '<i class="bi bi-credit-card-2-front-fill"></i>';
-
-        }
-
-        row.innerHTML = `
-
-            <td>${log.fecha || "00:30"}</td>
-
-            <td>${log.nombre || "Usuario " + log.usuario_id}</td>
-
-            <td>${icono}</td>
-
-            <td>${log.metodo || "Desconocido"}</td>
-
-            <td>${log.ubicacion || "Vestíbulo Principal"}</td>
-
-            <td>
-                <span class="${claseEstado}">
-                    ${textoEstado}
-                </span>
-            </td>
-
-        `;
-
-        tabla.appendChild(row);
-
-    });
-
-}
-
-window.addEventListener('load', () => {
-    cargarSesion();
-    cargarEstadoPanel();
-    cargarLogs();
-    actualizarHora();
-    setInterval(actualizarHora, 1000);
-});
-
-setInterval(() => {
-    cargarEstadoPanel();
-    cargarLogs();
-}, 5000);
-
-</script>
-
-</body>
-</html>
+    </body>
+    </html>
+*** End Patch

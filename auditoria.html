@@ -9,7 +9,7 @@
     <title>Auditoría - SeguriX</title>
 
     <link rel="stylesheet"
-    href="/static/styles.css">
+    href="/static/Styles.css">
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -18,80 +18,6 @@
 
 </head>
 <body>
-
-<!-- NAVBAR -->
-<div class="navbar">
-
-    <!-- IZQUIERDA -->
-    <div class="nav-left">
-
-        <img src="/static/logo.png"
-        class="nav-logo">
-
-        <img src="/static/Wordmark.png"
-        class="nav-Wordmark">
-
-    </div>
-
-
-    <!-- CENTRO -->
-    <div class="nav-menu">
-
-        <a href="/panel"
-        class="nav-item">
-
-            <i class="bi bi-grid-1x2-fill"></i>
-
-            <span>
-                Panel de Control
-            </span>
-
-        </a>
-
-
-        <a href="/usuarios"
-        class="nav-item">
-
-            <i class="bi bi-people-fill"></i>
-
-            <span>
-                Usuarios
-            </span>
-
-        </a>
-
-
-        <a href="/auditoria"
-        class="nav-item active">
-
-            <i class="bi bi-file-earmark-text-fill"></i>
-
-            <span>
-                Auditoría
-            </span>
-
-        </a>
-
-
-        <a href="/estadosys"
-        class="nav-item">
-
-            <i class="bi bi-shield-check"></i>
-
-            <span>
-                Estado del Sistema
-            </span>
-
-        </a>
-
-    </div>
-
-
-    </div>
-
-</div>
-
-
 
 <!-- CONTENIDO -->
 <div class="panel-container">
@@ -121,8 +47,9 @@
 
 
 
-    <!-- FILTROS -->
-    <form method="GET"
+    <!--FILTROS-->
+    <form id="audit-form"
+    method="GET"
     action="/auditoria"
     class="audit-filters">
 
@@ -247,18 +174,7 @@
 
 
 
-        <!-- BOTON -->
-        <button
-        type="button"
-        class="filter-submit"
-        onclick="cargarAuditoria()">
-
-            <i class="bi bi-funnel-fill"></i>
-
-            Filtrar
-
-        </button>
-
+        <button type="button" id="reset-filters-btn" class="filter-submit hidden">Revertir Cambios</button>
     </form>
 
 
@@ -322,16 +238,49 @@
 
 
 
-            <!--CUERPO DINAMICO-->
+            <!-- CUERPO DINAMICO -->
             <tbody id="audit-body"></tbody>
 
         </table>
 
     </div>
 
-</div>
+    <style>
+        .audit-filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
 
-<script>
+        .filter-select {
+            min-width: 160px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.06);
+            background: transparent;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .hidden { display: none !important; }
+
+        .tabla-container th, .tabla-container td { padding: 12px 14px; }
+        .tabla-container table { margin-top: 6px; }
+        .tabla-container tbody tr td.empty-row { padding: 24px 14px; color: #9ca3af; }
+
+        .table-header h2 { margin: 0; }
+        .table-subtitle { margin: 0; margin-top: 4px; color: #6b7280; line-height: 1.3; font-size: 0.95rem; }
+
+        .audit-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+        .audit-title { margin: 0 0 4px 0; font-size:1.35rem; }
+        .audit-total { font-weight:600; color:#374151; }
+
+        .panel-container { font-size: 14px; }
+    </style>
+
+    <script>
 
 async function cargarAuditoria() {
 
@@ -360,12 +309,8 @@ async function cargarAuditoria() {
         'select[name="estado"]'
     ).value;
 
-    const res =
-    await fetch("/auditoria_datos");
-
-
-    let logs =
-    await res.json();
+    const res = await fetch("/auditoria_datos");
+    let logs = await res.json();
 
 
     if (metodo !== "todos") {
@@ -463,7 +408,7 @@ async function cargarAuditoria() {
 
             <td>${log.fecha}</td>
 
-            <td>${log.nombre || 'Desconocido'}</td>
+            <td>${log.nombre || 'Desconocido'} ${log.placeholder ? '<span class="placeholder-badge">placeholder</span>' : ''}</td>
 
             <td>${log.metodo || 'N/A'}</td>
 
@@ -485,126 +430,66 @@ async function cargarAuditoria() {
 
 }
 
-window.addEventListener('load', cargarAuditoria);
-setInterval(cargarAuditoria, 5000);
 
-// FUNCIONES DE PERFIL Y NOTIFICACIONES
-async function cargarSesion() {
-    try {
-        const res = await fetch('/api/sesion');
-        if (res.ok) {
-            const sesion = await res.json();
-            if (sesion.logueado) {
-                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
-                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
-                document.getElementById('perfil-email').textContent = sesion.usuario_email;
-            }
-        }
-    } catch (err) {
-        console.error('Error cargando sesión:', err);
-    }
-}
-
-function actualizarHora() {
-    const ahora = new Date();
-    const hora = ahora.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit'
-    });
-    document.getElementById('perfil-hora').textContent = hora;
-}
-
-function abrirPerfil() {
-    document.getElementById('modalPerfil').classList.add('show');
-    actualizarHora();
-}
-
-function cerrarPerfil() {
-    document.getElementById('modalPerfil').classList.remove('show');
-}
-
-function cerrarSesion() {
-    if (confirm('¿Deseas cerrar sesión?')) {
-        window.location.href = '/logout';
-    }
-}
-
-async function cargarNotificaciones() {
-    try {
-        const res = await fetch('/auditoria_datos');
-        const logs = await res.json();
-        
-        const notificaciones = logs.slice(-5).reverse();
-        
-        document.getElementById('notif-badge').textContent = notificaciones.length;
-        
-        const lista = document.getElementById('notif-list');
-        lista.innerHTML = '';
-        
-        if (notificaciones.length === 0) {
-            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
-            return;
-        }
-        
-        notificaciones.forEach(log => {
-            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
-                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
-                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
-            
-            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
-            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
-            
-            const item = document.createElement('div');
-            item.className = `notif-item ${estado}`;
-            item.innerHTML = `
-                <i class="bi ${icono} notif-icon"></i>
-                <div class="notif-content">
-                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
-                    <small>${log.metodo || 'Método desconocido'}</small>
-                    <small>${log.ubicacion || 'Ubicación'}</small>
-                    <small>${log.fecha || 'Hora no disponible'}</small>
-                </div>
-                <span class="notif-estado ${estado}">${estadoText}</span>
-            `;
-            lista.appendChild(item);
+function inicializarFiltrosAuditoria() {
+    const selects = document.querySelectorAll('.filter-select');
+    selects.forEach(select => {
+        select.addEventListener('change', () => {
+            actualizarBotonReset();
+            cargarAuditoria();
         });
-    } catch (err) {
-        console.error('Error cargando notificaciones:', err);
+    });
+
+    const resetBtn = document.getElementById('reset-filters-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            restablecerFiltros();
+            cargarAuditoria();
+        });
+    }
+
+    const form = document.getElementById('audit-form');
+    if (form) {
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            cargarAuditoria();
+        });
+    }
+    actualizarBotonReset();
+}
+
+function obtenerEstadoFiltros() {
+    const valores = Array.from(document.querySelectorAll('.filter-select')).map(select => select.value);
+    return valores.some(valor => valor !== 'todos');
+}
+
+function actualizarBotonReset() {
+    const resetBtn = document.getElementById('reset-filters-btn');
+    if (!resetBtn) return;
+    if (obtenerEstadoFiltros()) {
+        resetBtn.classList.remove('hidden');
+    } else {
+        resetBtn.classList.add('hidden');
     }
 }
 
-function abrirNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.add('show');
-    cargarNotificaciones();
+function restablecerFiltros() {
+    document.querySelectorAll('.filter-select').forEach(select => {
+        select.value = 'todos';
+    });
+    actualizarBotonReset();
 }
 
-function cerrarNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.remove('show');
-}
+window.addEventListener('load', () => {
+    inicializarFiltrosAuditoria();
+    cargarAuditoria();
+    setInterval(() => cargarAuditoria(), 5000);
+});
 
-window.onclick = function(event) {
-    const modalPerfil = document.getElementById('modalPerfil');
-    const modalNotif = document.getElementById('modalNotificaciones');
-    
-    if (event.target === modalPerfil) {
-        modalPerfil.classList.remove('show');
-    }
-    if (event.target === modalNotif) {
-        modalNotif.classList.remove('show');
-    }
-}
 
-(function() {
-    cargarSesion();
-    actualizarHora();
-    setInterval(actualizarHora, 1000);
-    setInterval(cargarNotificaciones, 5000);
-})();
+
 
 </script>
-
-
 
 </body>
 </html>

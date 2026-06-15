@@ -7,7 +7,7 @@
 
     <title>Estado del Sistema - SeguriX</title>
 
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/Styles.css">
 
     <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -17,44 +17,7 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-
-    <div class="nav-left">
-
-        <img src="/static/logo.png" class="nav-logo">
-        <img src="/static/Wordmark.png" class="nav-Wordmark">
-
-    </div>
-
-    <div class="nav-menu">
-
-        <a href="/panel" class="nav-item">
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Panel de Control</span>
-        </a>
-
-        <a href="/usuarios" class="nav-item">
-            <i class="bi bi-people-fill"></i>
-            <span>Usuarios</span>
-        </a>
-
-        <a href="/auditoria" class="nav-item">
-            <i class="bi bi-file-earmark-text-fill"></i>
-            <span>Auditoría</span>
-        </a>
-
-        <a href="/estadosys" class="nav-item active">
-            <i class="bi bi-shield-check"></i>
-            <span>Estado del Sistema</span>
-        </a>
-
-    </div>
-
-    </div>
-
-</div>
-
+<!-- navbar inyectado por dashboard.js -->
 
 <!-- CONTENIDO -->
 <div class="panel-container">
@@ -73,7 +36,7 @@
 
                 <i class="bi bi-box-arrow-in-right"></i>
 
-                <h2 id="accesos-hoy">75</h2>
+                <h2 id="accesos-hoy">0</h2>
 
             </div>
 
@@ -90,7 +53,7 @@
 
                 <i class="bi bi-door-open-fill"></i>
 
-                <h2 id="entradas">58</h2>
+                <h2 id="entradas">0</h2>
 
             </div>
 
@@ -107,7 +70,7 @@
 
                 <i class="bi bi-door-closed-fill"></i>
 
-                <h2 id="salidas">43</h2>
+                <h2 id="salidas">0</h2>
 
             </div>
 
@@ -124,7 +87,7 @@
 
                 <i class="bi bi-people-fill"></i>
 
-                <h2 id="personas-dentro">27</h2>
+                <h2 id="personas-dentro">0</h2>
 
             </div>
 
@@ -143,9 +106,7 @@
 
             Centro de Alertas
 
-            <span class="alerts-count" id="alerts-count">
-                4
-            </span>
+            <span class="alerts-count" id="alerts-count">0</span>
 
         </button>
 
@@ -220,9 +181,7 @@
 
                         </div>
 
-                        <span class="method-count" id="qr-count">
-                            32 usos
-                        </span>
+                        <span class="method-count" id="qr-count">0 usos</span>
 
                     </div>
 
@@ -239,9 +198,7 @@
 
                         </div>
 
-                        <span class="method-count" id="tarjeta-count">
-                            27 usos
-                        </span>
+                        <span class="method-count" id="tarjeta-count">0 usos</span>
 
                     </div>
 
@@ -258,9 +215,7 @@
 
                         </div>
 
-                        <span class="method-count" id="huella-count">
-                            16 usos
-                        </span>
+                        <span class="method-count" id="huella-count">0 usos</span>
 
                     </div>
 
@@ -273,7 +228,11 @@
     </div>
 
 </div>
+</div>
 
+
+<!-- OVERLAY PARA BLUR -->
+<div class="alerts-overlay" id="alertsOverlay"></div>
 
 <!-- PANEL LATERAL ALERTAS -->
 <div id="alertsPanel"
@@ -281,15 +240,8 @@ class="alerts-panel">
 
     <div class="alerts-header">
 
-        <h2>
-            Centro de Alertas
-        </h2>
-
-        <button
-        class="close-alerts"
-        onclick="cerrarAlertas()">
-
-            ✕
+        <button class="close-alerts" onclick="cerrarAlertas()" aria-label="Cerrar centro de alertas">
+            &times;
         </button>
 
     </div>
@@ -303,7 +255,7 @@ class="alerts-panel">
             <div>
 
                 <strong>
-                    Acceso Denegado
+                    Acceso Denegado <span class="placeholder-badge">placeholder</span>
                 </strong>
 
                 <p>
@@ -326,7 +278,7 @@ class="alerts-panel">
             <div>
 
                 <strong>
-                    Fuera de Horario
+                    Fuera de Horario <span class="placeholder-badge">placeholder</span>
                 </strong>
 
                 <p>
@@ -349,7 +301,7 @@ class="alerts-panel">
             <div>
 
                 <strong>
-                    Mantenimiento
+                    Mantenimiento <span class="placeholder-badge">placeholder</span>
                 </strong>
 
                 <p>
@@ -372,7 +324,7 @@ class="alerts-panel">
             <div>
 
                 <strong>
-                    Sistema Operativo
+                    Sistema Operativo <span class="placeholder-badge">placeholder</span>
                 </strong>
 
                 <p>
@@ -401,6 +353,15 @@ function abrirAlertas(){
     .classList
     .add("show-alerts");
 
+    document
+    .getElementById("alertsOverlay")
+    .classList
+    .add("show");
+
+    const panel = document.querySelector(".panel-container");
+    if (panel) panel.classList.add("blur-effect");
+    document.body.classList.add("blur-active");
+
 }
 
 function cerrarAlertas(){
@@ -410,12 +371,21 @@ function cerrarAlertas(){
     .classList
     .remove("show-alerts");
 
+    document
+    .getElementById("alertsOverlay")
+    .classList
+    .remove("show");
+
+    const panel = document.querySelector(".panel-container");
+    if (panel) panel.classList.remove("blur-effect");
+    document.body.classList.remove("blur-active");
+
 }
 
 </script>
 
 <script>
-// Dynamic data loader: users, system state and live accesses
+// Cargador dinamico de datos: usuarios, estado del sistema y accesos en vivo
 async function fetchJSON(url){
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
@@ -429,21 +399,21 @@ async function actualizarEstado(){
             fetchJSON('/api/usuarios')
         ]);
 
-        // Update top counters (keep original numbers as fallback)
+        // Actualizar contadores superiores (usar numeros originales como respaldo)
         document.getElementById('accesos-hoy').textContent = estado.accesos_hoy ?? document.getElementById('accesos-hoy').textContent;
         document.getElementById('entradas').textContent = estado.entradas ?? document.getElementById('entradas').textContent;
         document.getElementById('salidas').textContent = estado.salidas ?? document.getElementById('salidas').textContent;
         document.getElementById('personas-dentro').textContent = estado.personas_dentro ?? document.getElementById('personas-dentro').textContent;
         document.getElementById('alerts-count').textContent = estado.alertas ?? document.getElementById('alerts-count').textContent;
 
-        // Methods count from registered users (reflects usuarios.html creations)
+        // Contar metodos de los usuarios registrados (refleja creaciones en usuarios.html)
         const metodoCounts = {};
         usuarios.forEach(u => {
             const m = (u.metodo || 'Desconocido').toString();
             metodoCounts[m] = (metodoCounts[m] || 0) + 1;
         });
 
-        // Populate method counters (try several keys for compatibility)
+        // Poblar contadores de metodos (usar varias claves para compatibilidad)
         const qr = metodoCounts['Código QR'] || metodoCounts['QR'] || metodoCounts['qr'] || 0;
         const tarjeta = metodoCounts['Tarjeta'] || metodoCounts['Tarjeta RFID'] || metodoCounts['tarjeta'] || 0;
         const huella = metodoCounts['Huella Digital'] || metodoCounts['Huella'] || metodoCounts['huella'] || 0;
@@ -493,123 +463,12 @@ function iconoMetodo(m){
     if (k.includes('huella') || k.includes('finger')) return '<i class="bi bi-fingerprint"></i>';
     return '<i class="bi bi-question-circle-fill"></i>';
 }
-
-// FUNCIONES DE PERFIL Y NOTIFICACIONES
-async function cargarSesion() {
-    try {
-        const res = await fetch('/api/sesion');
-        if (res.ok) {
-            const sesion = await res.json();
-            if (sesion.logueado) {
-                document.getElementById('perfil-nombre').textContent = sesion.usuario_nombre;
-                document.getElementById('perfil-rol').textContent = sesion.usuario_rol;
-                document.getElementById('perfil-email').textContent = sesion.usuario_email;
-            }
-        }
-    } catch (err) {
-        console.error('Error cargando sesión:', err);
-    }
-}
-
-function actualizarHora() {
-    const ahora = new Date();
-    const hora = ahora.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit'
-    });
-    document.getElementById('perfil-hora').textContent = hora;
-}
-
-function abrirPerfil() {
-    document.getElementById('modalPerfil').classList.add('show');
-    actualizarHora();
-}
-
-function cerrarPerfil() {
-    document.getElementById('modalPerfil').classList.remove('show');
-}
-
-function cerrarSesion() {
-    if (confirm('¿Deseas cerrar sesión?')) {
-        window.location.href = '/logout';
-    }
-}
-
-async function cargarNotificaciones() {
-    try {
-        const res = await fetch('/auditoria_datos');
-        const logs = await res.json();
-        
-        const notificaciones = logs.slice(-5).reverse();
-        
-        document.getElementById('notif-badge').textContent = notificaciones.length;
-        
-        const lista = document.getElementById('notif-list');
-        lista.innerHTML = '';
-        
-        if (notificaciones.length === 0) {
-            lista.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay notificaciones</p>';
-            return;
-        }
-        
-        notificaciones.forEach(log => {
-            const icono = log.metodo?.includes('QR') ? 'bi-qr-code-scan' :
-                         log.metodo?.includes('Huella') ? 'bi-fingerprint' :
-                         log.metodo?.includes('Tarjeta') ? 'bi-credit-card-2-front-fill' : 'bi-info-circle';
-            
-            const estado = log.estado === 'activo' ? 'permitido' : 'denegado';
-            const estadoText = log.estado === 'activo' ? 'PERMITIDO' : 'DENEGADO';
-            
-            const item = document.createElement('div');
-            item.className = `notif-item ${estado}`;
-            item.innerHTML = `
-                <i class="bi ${icono} notif-icon"></i>
-                <div class="notif-content">
-                    <strong>${log.nombre || 'Usuario ' + log.usuario_id}</strong>
-                    <small>${log.metodo || 'Método desconocido'}</small>
-                    <small>${log.ubicacion || 'Ubicación'}</small>
-                    <small>${log.fecha || 'Hora no disponible'}</small>
-                </div>
-                <span class="notif-estado ${estado}">${estadoText}</span>
-            `;
-            lista.appendChild(item);
-        });
-    } catch (err) {
-        console.error('Error cargando notificaciones:', err);
-    }
-}
-
-function abrirNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.add('show');
-    cargarNotificaciones();
-}
-
-function cerrarNotificaciones() {
-    document.getElementById('modalNotificaciones').classList.remove('show');
-}
-
-window.onclick = function(event) {
-    const modalPerfil = document.getElementById('modalPerfil');
-    const modalNotif = document.getElementById('modalNotificaciones');
-    
-    if (event.target === modalPerfil) {
-        modalPerfil.classList.remove('show');
-    }
-    if (event.target === modalNotif) {
-        modalNotif.classList.remove('show');
-    }
-}
-
 window.addEventListener('load', () => {
-    cargarSesion();
+    // Inicializar solo las funciones de esta pagina
     actualizarEstado();
     cargarAccesosEnVivo();
-    actualizarHora();
-    setInterval(actualizarHora, 1000);
     setInterval(actualizarEstado, 20_000);
     setInterval(cargarAccesosEnVivo, 10_000);
-    setInterval(cargarNotificaciones, 5000);
 });
 </script>
 
