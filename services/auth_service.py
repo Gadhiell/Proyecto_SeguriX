@@ -1,24 +1,22 @@
-def validar_acceso(usuario_id, usuarios):
-    """
-    Verifica si un usuario puede acceder.
-    
-    Retorna: (permitido: bool, estado: str)
-    """
+from services.access_strategies import AccessValidationContext
+
+
+_contexto_validacion = AccessValidationContext()
+
+
+def validar_acceso(usuario_id, usuarios, metodo_solicitado=None):
+    """Valida el acceso con la estrategia correspondiente."""
     try:
-        # Buscar al usuario usando el ID como cadena para coincidir con las llaves en memoria
         usuario = usuarios.get(str(usuario_id))
-        
-        # Si no existe, no permitir
-        if not usuario:
+        if usuario is None:
             return False, "inactivo"
 
-        # Si no está activo, no permitir
-        if not usuario.get("activo", False):
-            return False, "inactivo"
+        permitido, estado = _contexto_validacion.validate(usuario, metodo_solicitado)
+        if estado == "activo":
+            return True, estado
 
-        # Todo ok, permitir acceso
-        return True, "activo"
-        
+        return permitido, estado
+
     except Exception as e:
         print(f"Error validando acceso: {e}")
         return False, "inactivo"

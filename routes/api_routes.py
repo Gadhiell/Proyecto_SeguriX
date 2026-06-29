@@ -1,44 +1,47 @@
-from flask import Blueprint, request, jsonify
-from services.auth_service import validar_acceso
-from data.memory_db import usuarios, logs
-from models.evento_acceso import EventoAcceso
 from datetime import datetime
+
+from flask import Blueprint, jsonify, request
+
+from data.memory_db import logs, usuarios
+from models.evento_acceso import EventoAcceso
 from repositories.usuario_repository import UsuarioRepository
+from services.auth_service import validar_acceso
+from services.usuario_service import crear_usuario_desde_datos, obtener_estado_sistema as obtener_estado_sistema_datos
 
 api = Blueprint("api", __name__)
 repo = UsuarioRepository()
 
+
 @api.route("/acceso", methods=["POST"])
 def acceso():
     try:
-        # Obtener datos del request
-        data = request.json
+        #datos del request
+        data = request.get_json(silent=True)
         if not data:
             return jsonify({"error": "Datos inválidos"}), 400
 
         usuario_id = data.get("usuario_id")
         metodo = data.get("metodo")
-        
-        # Validar que vengan los datos requeridos
+
+        #valida que vengan datos
         if not usuario_id or not metodo:
             return jsonify({"error": "Usuario y método requeridos"}), 400
 
-        # Validar acceso del usuario
-        permitido, estado = validar_acceso(usuario_id, usuarios)
+        #valida acceso con strategy
+        _, estado = validar_acceso(usuario_id, usuarios, metodo)
 
-        # Registrar el evento
+        #registra el evento
         log = EventoAcceso(
             datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
             usuario_id,
             metodo,
             "Vestíbulo Principal",
-            estado
+            estado,
         )
 
         logs.append(log.to_dict())
-
         return jsonify(log.to_dict()), 200
-        
+
     except Exception as e:
         print(f"Error en acceso: {e}")
         return jsonify({"error": "Error procesando acceso"}), 500
@@ -51,13 +54,6 @@ def obtener_logs():
     except Exception as e:
         print(f"Error obteniendo logs: {e}")
         return jsonify({"error": "Error obteniendo logs"}), 500
-
-
-def obtener_siguiente_id():
-    try:
-        return str(max(int(key) for key in usuarios.keys()) + 1)
-    except ValueError:
-        return "1"
 
 
 @api.route("/api/usuarios", methods=["GET"])
@@ -77,51 +73,11 @@ def crear_usuario():
         else:
             data = request.form.to_dict()
 
-        nombre = data.get("nombre", "").strip()
-        rut = data.get("rut", "").strip()
-        empresa = data.get("empresa", "").strip()
-        email = data.get("email", "").strip()
-        rol = data.get("rol", "Empleado").strip()
-        metodo = data.get("metodo", "").strip()
-        credencial = data.get("credencial", "").strip()
-        expiracion = data.get("expiracion", "").strip()
-        zonas = data.get("zonas", "").strip()
+        usuario, error = crear_usuario_desde_datos(data)
+        if error:
+            return jsonify({"error": error}), 400
 
-        if not nombre or not rut:
-            return jsonify({"error": "Nombre y RUT son obligatorios"}), 400
-
-        metodo_normalizado = normalizar_metodo(metodo)
-        if not metodo_normalizado:
-            return jsonify({"error": "Método de acceso no válido"}), 400
-
-        nuevo_id = obtener_siguiente_id()
-        nuevo_usuario = {
-            "id": nuevo_id,
-            "nombre": nombre,
-            "rut": rut,
-            "empresa": empresa,
-            "email": email,
-            "rol": rol,
-            "metodo": metodo_normalizado,
-            "credencial": credencial,
-            "expiracion": expiracion,
-            "zonas": zonas,
-            "activo": True
-        }
-
-        repo.agregar(nuevo_usuario)
-        logs.append({
-            "fecha": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-            "usuario_id": nuevo_id,
-            "nombre": nombre,
-            "rol": rol,
-            "metodo": metodo_normalizado,
-            "ubicacion": "Registro de Usuario",
-            "estado": "activo",
-            "placeholder": False
-        })
-
-        return jsonify({"success": True, "usuario": nuevo_usuario}), 201
+        return jsonify({"success": True, "usuario": usuario}), 201
 
     except Exception as e:
         print(f"Error creando usuario: {e}")
@@ -131,53 +87,12 @@ def crear_usuario():
 @api.route("/api/estado_sistema", methods=["GET"])
 def obtener_estado_sistema():
     try:
-        # Contar accesos
-        accesos_totales = len(logs)
-        accesos_permitidos = sum(
-            1 for log in logs 
-            if log.get("estado") == "activo"
-        )
-        accesos_denegados = accesos_totales - accesos_permitidos
+        estado = obtener_estado_sistema_datos()
+        return jsonify(estado), 200
 
-        # Contar métodos disponibles
-        metodos = {}
-        for usuario in repo.obtener_todos():
-            metodo = usuario.get("metodo", "Desconocido")
-            metodos[metodo] = metodos.get(metodo, 0) + 1
-
-        return jsonify({
-            "total_usuarios": repo.total_usuarios(),
-            "personas_dentro": repo.total_activos(),
-            "accesos_hoy": accesos_totales,
-            "entradas": accesos_permitidos,
-            "salidas": accesos_denegados,
-            "alertas": accesos_denegados,
-            "metodos": metodos,
-        }), 200
-        
     except Exception as e:
         print(f"Error obteniendo estado: {e}")
         return jsonify({"error": "Error obteniendo estado"}), 500
-
-
-
-
-def normalizar_metodo(metodo_input):
-    """Convierte el método de acceso a formato estándar."""
-    if not metodo_input:
-        return None
-
-    metodo_lower = metodo_input.lower()
-
-    if "qr" in metodo_lower:
-        return "Código QR"
-
-    elif "tarjeta" in metodo_lower or "card" in metodo_lower or "rfid" in metodo_lower:
-        return "Tarjeta RFID"
-    elif "huella" in metodo_lower or "finger" in metodo_lower:
-        return "Huella Digital"
-
-    return None
 
 
 @api.route("/auditoria_datos")
@@ -186,7 +101,7 @@ def auditoria_datos():
         resultado = []
 
         for log in logs:
-            # Buscar datos del usuario
+            #busca datos del usuario
             usuario = repo.obtener_por_id(log.get("usuario_id"))
             if usuario is None:
                 usuario = {}
@@ -199,11 +114,11 @@ def auditoria_datos():
                 "metodo": log.get("metodo"),
                 "ubicacion": log.get("ubicacion"),
                 "estado": log.get("estado"),
-                "placeholder": bool(log.get("placeholder") or usuario.get("placeholder"))
+                "placeholder": bool(log.get("placeholder") or usuario.get("placeholder")),
             })
 
         return jsonify(resultado), 200
-        
+
     except Exception as e:
         print(f"Error obteniendo auditoría: {e}")
         return jsonify({"error": "Error obteniendo auditoría"}), 500

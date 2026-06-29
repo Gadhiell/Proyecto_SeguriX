@@ -1,20 +1,20 @@
 class EventoAcceso:
-    """Representa un evento de acceso al sistema."""
+    """Representa un evento de acceso."""
 
     def __init__(self, fecha, usuario_id, metodo, ubicacion, estado):
-        """Inicializa un evento de acceso."""
-        self.fecha = fecha              # Cuándo ocurrió
-        self.usuario_id = usuario_id    # Quién fue
-        self.metodo = metodo            # Cómo ingresó (QR, tarjeta, etc)
-        self.ubicacion = ubicacion      # Dónde ocurrió
-        self.estado = estado            # Si fue permitido o denegado
+        """Inicializa un evento."""
+        self.fecha = fecha  #fecha del evento
+        self.usuario_id = usuario_id  #usuario involucrado
+        self.metodo = metodo  #método usado
+        self.ubicacion = ubicacion  #lugar del evento
+        self.estado = estado  #resultado del acceso
 
     def to_dict(self):
-        """Convierte el evento a diccionario para enviar por API."""
+        """Convierte el evento a dict para la API."""
         return {
             "fecha": self.fecha,
             "usuario_id": self.usuario_id,
             "metodo": self.metodo,
             "ubicacion": self.ubicacion,
-            "estado": self.estado
+            "estado": self.estado,
         }

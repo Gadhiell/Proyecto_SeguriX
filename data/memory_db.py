@@ -1,4 +1,4 @@
-# Base de datos en memoria con usuarios de prueba y logs de acceso
+#datos demo en memoria
 
 usuarios = {
 	"1": {
@@ -43,7 +43,7 @@ usuarios = {
 	}
 }
 
-# Registro de todos los intentos de acceso al sistema
+#historial de accesos
 logs = [
 	{
 		"fecha": "14/06/2026 09:15:00",
