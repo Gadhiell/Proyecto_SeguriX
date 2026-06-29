@@ -53,9 +53,7 @@ En este proyecto Flask se encarga de:
 
 
 ## **Diagrama UML**
-<img width="1385" height="768" alt="diagrama de clases uml ACTUALIZADO" src="https://github.com/user-attachments/assets/f2b7e724-0032-4d95-8250-aef51f775c7e" />
-
-
+<img width="1330" height="784" alt="diagrama de clases" src="https://github.com/user-attachments/assets/a4006e16-c9f5-4b37-873a-6fa0a1f342ac" />
 
 
 
